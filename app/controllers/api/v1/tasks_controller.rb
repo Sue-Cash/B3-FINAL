@@ -1,10 +1,10 @@
 module Api
   module V1
     class TasksController < ApplicationController
-      # Handle missing records and bad parameters gracefully
-      rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+      # Gestion centralisée des erreurs
+      rescue_from ActiveRecord::RecordNotFound,    with: :render_not_found
       rescue_from ActionController::ParameterMissing, with: :render_bad_request
-      rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_bad_request
+      rescue_from JSON::ParserError,               with: :render_bad_request
 
       before_action :set_task, only: %i[show update destroy]
 
@@ -29,7 +29,7 @@ module Api
         end
       end
 
-      # PUT/PATCH /api/v1/tasks/:id
+      # PATCH/PUT /api/v1/tasks/:id
       def update
         if @task.update(task_params)
           render json: @task, status: :ok
@@ -47,7 +47,7 @@ module Api
       private
 
       def set_task
-        @task = Task.find(params[:id])
+        @task = Task.find(params.require(:id))
       end
 
       def task_params
@@ -61,8 +61,9 @@ module Api
         )
       end
 
-      def render_not_found
-        render json: { error: 'Task not found' }, status: :not_found
+      # --- gestion des erreurs ---
+      def render_not_found(exception)
+        render json: { error: exception.message }, status: :not_found
       end
 
       def render_bad_request(exception)
