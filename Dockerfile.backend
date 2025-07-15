@@ -19,7 +19,7 @@ RUN bundle install --jobs 4 --retry 3
 COPY . .
 
 # Precompile assets (pour API-only, optionnel si pas d’assets)
-/bin/bash -l -c "bundle exec rails assets:precompile" || true
+RUN /bin/bash -l -c "bundle exec rails assets:precompile" || true
 
 # Exposer le port Rails
 EXPOSE 3000
