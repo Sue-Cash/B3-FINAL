@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Tableau de Bord</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .filters {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-apply {
+            width: 100%;
+            padding: 10px;
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 5px solid;
+        }
+
+        .stat-card.weekly { border-left-color: #ff6b6b; }
+        .stat-card.monthly { border-left-color: #4ecdc4; }
+        .stat-card.objectives { border-left-color: #45b7d1; }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e6ed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Achievement Cards */
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .achievement-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .achievement-card h4 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .achievement-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .level-indicator {
+            background: #ffd700;
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Objectives Section */
+        .objectives-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+
+        .objective-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .objective-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .objective-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .objective-progress {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .task-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .task-checkbox:checked + .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .objective-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-details {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-modify {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item active">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="filters">
+            <h3>FILTRES</h3>
+            <div class="filter-item">
+                <input type="checkbox" id="cat1" checked>
+                <label for="cat1">CATÉGORIE 1</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat2" checked>
+                <label for="cat2">CATÉGORIE 2</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat3" checked>
+                <label for="cat3">CATÉGORIE 3</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat4" checked>
+                <label for="cat4">CATÉGORIE 4</label>
+            </div>
+            <button class="btn-apply">APPLIQUER</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>TABLEAU DE BORD</h1>
+            <div class="points-badge">POINTS: 10</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card weekly">
+                <h3>HEBDOMADAIRE</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+                <div class="stat-number">10% (10/10 TÂCHES)</div>
+            </div>
+            <div class="stat-card monthly">
+                <h3>MENSUEL</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 10%;"></div>
+                </div>
+                <div class="stat-number">10% (10/10 TÂCHES)</div>
+            </div>
+            <div class="stat-card objectives">
+                <h3>OBJECTIFS</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 10%;"></div>
+                </div>
+                <div class="stat-number">10% (10/10 TERMINÉS)</div>
+            </div>
+        </div>
+
+        <div class="achievement-grid">
+            <div class="achievement-card">
+                <div class="achievement-icon">📈</div>
+                <h4>10</h4>
+                <p>TÂCHES AUJOURD'HUI</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🎯</div>
+                <h4>10</h4>
+                <p>OBJECTIFS ACTIFS</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">✨</div>
+                <h4>10%</h4>
+                <p>TAUX DE RÉUSSITE</p>
+            </div>
+            <div class="achievement-card">
+                <div class="achievement-icon">🏆</div>
+                <h4>NIVEAU 10</h4>
+                <p>NIVEAU ACTUEL</p>
+                <div class="level-indicator">NIVEAU ACTUEL</div>
+            </div>
+        </div>
+
+        <div class="objectives-section">
+            <div class="section-header">
+                <h2>OBJECTIFS ACTIFS</h2>
+                <button class="btn-add">+ NOUVEL OBJECTIF</button>
+            </div>
+
+            <div class="objective-card">
+                <div class="objective-header">
+                    <div class="objective-title">OBJECTIF 1</div>
+                    <div class="objective-progress">PROGRESSION: 10/10 (10%) • 10 POINTS</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <span class="task-text">TÂCHE 1</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <span class="task-text">TÂCHE 2</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 3</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 4</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 5</span>
+                    </li>
+                </ul>
+                <div class="objective-actions">
+                    <button class="btn-small btn-details">DÉTAILS</button>
+                    <button class="btn-small btn-modify">MODIFIER</button>
+                    <button class="btn-small btn-delete">SUPPRIMER</button>
+                </div>
+            </div>
+
+            <div class="objective-card">
+                <div class="objective-header">
+                    <div class="objective-title">OBJECTIF 2</div>
+                    <div class="objective-progress">PROGRESSION: 10/10 (10%) • 10 POINTS</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <span class="task-text">TÂCHE 1</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <span class="task-text">TÂCHE 2</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 3</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 4</span>
+                    </li>
+                </ul>
+                <div class="objective-actions">
+                    <button class="btn-small btn-details">DÉTAILS</button>
+                    <button class="btn-small btn-modify">MODIFIER</button>
+                    <button class="btn-small btn-delete">SUPPRIMER</button>
+                </div>
+            </div>
+
+            <div class="objective-card">
+                <div class="objective-header">
+                    <div class="objective-title">OBJECTIF 3</div>
+                    <div class="objective-progress">PROGRESSION: 10/10 (10%) • 10 POINTS</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 1</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 2</span>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <span class="task-text">TÂCHE 3</span>
+                    </li>
+                </ul>
+                <div class="objective-actions">
+                    <button class="btn-small btn-details">DÉTAILS</button>
+                    <button class="btn-small btn-modify">MODIFIER</button>
+                    <button class="btn-small btn-delete">SUPPRIMER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Mes Tâches</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .filters {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .filter-item input[type="checkbox"], .filter-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .filter-item label {
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-apply {
+            width: 100%;
+            padding: 10px;
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            background: #ffed4e;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 5px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card.today { border-top-color: #667eea; }
+        .stat-card.late { border-top-color: #ff6b6b; }
+        .stat-card.week { border-top-color: #4ecdc4; }
+        .stat-card.completion { border-top-color: #45b7d1; }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Tasks Table */
+        .tasks-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tasks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .tasks-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tasks-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .tasks-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .tasks-table tr:hover {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            transform: scale(1.01);
+        }
+
+        .task-row {
+            position: relative;
+        }
+
+        .task-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .task-row:hover::before {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-name {
+            font-weight: 500;
+            color: #333;
+            position: relative;
+        }
+
+        .task-completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .objective-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .objective-link:hover {
+            text-decoration: underline;
+            color: #764ba2;
+        }
+
+        .priority-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #f57c00;
+            border: 1px solid #ffe0b2;
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            color: #388e3c;
+            border: 1px solid #c8e6c9;
+        }
+
+        .due-date {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .due-late {
+            color: #d32f2f;
+            font-weight: bold;
+            background: #ffebee;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .due-today {
+            color: #f57c00;
+            font-weight: bold;
+            background: #fff3e0;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .due-future {
+            color: #388e3c;
+        }
+
+        .due-completed {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .points-cell {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-details {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .btn-modify {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #f57c00;
+            border: 1px solid #ffe0b2;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            color: #388e3c;
+            border: 1px solid #c8e6c9;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-completed {
+            background: #4caf50;
+        }
+
+        .status-completed::before {
+            background: #4caf50;
+        }
+
+        .status-pending {
+            background: #ff9800;
+        }
+
+        .status-pending::before {
+            background: #ff9800;
+        }
+
+        .status-overdue {
+            background: #f44336;
+        }
+
+        .status-overdue::before {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions-cell {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .header-actions {
+                justify-content: space-between;
+            }
+            
+            .tasks-table {
+                font-size: 0.9rem;
+            }
+            
+            .tasks-table th,
+            .tasks-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item active">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="filters">
+            <h3>FILTRES TÂCHES</h3>
+            
+            <div class="filter-section">
+                <div class="filter-item">
+                    <input type="checkbox" id="high" checked>
+                    <label for="high">PRIORITÉ HAUTE</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="medium" checked>
+                    <label for="medium">PRIORITÉ MOYENNE</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="low" checked>
+                    <label for="low">PRIORITÉ BASSE</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-item">
+                    <input type="radio" id="all" name="status" checked>
+                    <label for="all">TOUTES</label>
+                </div>
+                <div class="filter-item">
+                    <input type="radio" id="todo" name="status">
+                    <label for="todo">À FAIRE</label>
+                </div>
+                <div class="filter-item">
+                    <input type="radio" id="done" name="status">
+                    <label for="done">TERMINÉES</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-item">
+                    <input type="checkbox" id="today">
+                    <label for="today">AUJOURD'HUI</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="week">
+                    <label for="week">CETTE SEMAINE</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="late">
+                    <label for="late">EN RETARD</label>
+                </div>
+            </div>
+
+            <button class="btn-apply">APPLIQUER</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>MES TÂCHES</h1>
+            <div class="header-actions">
+                <div class="points-badge">POINTS: 10</div>
+                <button class="btn-add">+ NOUVELLE TÂCHE</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card today">
+                <h3>10</h3>
+                <p>TÂCHES AUJOURD'HUI</p>
+            </div>
+            <div class="stat-card late">
+                <h3>10</h3>
+                <p>EN RETARD</p>
+            </div>
+            <div class="stat-card week">
+                <h3>10</h3>
+                <p>CETTE SEMAINE</p>
+            </div>
+            <div class="stat-card completion">
+                <h3>10%</h3>
+                <p>TAUX COMPLÉTION</p>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">✓</th>
+                        <th>TÂCHE</th>
+                        <th>OBJECTIF</th>
+                        <th>PRIORITÉ</th>
+                        <th>ÉCHÉANCE</th>
+                        <th style="width: 100px;">POINTS</th>
+                        <th style="width: 200px;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox" checked>
+                        </td>
+                        <td>
+                            <div class="status-indicator status-completed"></div>
+                            <span class="task-name task-completed">TÂCHE 1</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 1</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-high">HAUTE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-completed">HIER ✓</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-view">VOIR</button>
+                        </td>
+                    </tr>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <div class="status-indicator status-pending"></div>
+                            <span class="task-name">TÂCHE 2</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 1</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-medium">MOYENNE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-today">AUJOURD'HUI</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-details">DÉTAIL</button>
+                            <button class="btn-small btn-modify">MODIFIER</button>
+                            <button class="btn-small btn-delete">SUPPR.</button>
+                        </td>
+                    </tr>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox" checked>
+                        </td>
+                        <td>
+                            <div class="status-indicator status-completed"></div>
+                            <span class="task-name task-completed">TÂCHE 3</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 2</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-high">HAUTE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-completed">HIER ✓</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-view">VOIR</button>
+                        </td>
+                    </tr>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <div class="status-indicator status-pending"></div>
+                            <span class="task-name">TÂCHE 4</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 1</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-low">BASSE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-today">AUJOURD'HUI</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-details">DÉTAIL</button>
+                            <button class="btn-small btn-modify">MODIFIER</button>
+                            <button class="btn-small btn-delete">SUPPR.</button>
+                        </td>
+                    </tr>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <div class="status-indicator status-pending"></div>
+                            <span class="task-name">TÂCHE 5</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 3</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-medium">MOYENNE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-future">DEMAIN</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-details">DÉTAIL</button>
+                            <button class="btn-small btn-modify">MODIFIER</button>
+                            <button class="btn-small btn-delete">SUPPR.</button>
+                        </td>
+                    </tr>
+                    <tr class="task-row">
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <div class="status-indicator status-overdue"></div>
+                            <span class="task-name">TÂCHE 6</span>
+                        </td>
+                        <td>
+                            <a href="#" class="objective-link">OBJECTIF 4</a>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-high">HAUTE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-late">IL Y A 10 JOURS (EN RETARD)</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="actions-cell">
+                            <button class="btn-small btn-details">DÉTAIL</button>
+                            <button class="btn-small btn-modify">MODIFIER</button>
+                            <button class="btn-small btn-delete">SUPPR.</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

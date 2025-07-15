@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Créer Nouvelle Tâche</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .objectives-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .objectives-panel h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .objective-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .objective-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        input[type="text"], textarea, select, input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .preview-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .preview-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .preview-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-cancel:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Priority Indicators */
+        .priority-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .priority-high { background: #ff6b6b; }
+        .priority-medium { background: #ffd93d; }
+        .priority-low { background: #6bcf7f; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item active">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="objectives-panel">
+            <h3>OBJECTIFS ACTIFS</h3>
+            <div class="objective-item">
+                <input type="radio" id="obj1" name="objective" value="1">
+                <label for="obj1">OBJECTIF 1</label>
+            </div>
+            <div class="objective-item">
+                <input type="radio" id="obj2" name="objective" value="2">
+                <label for="obj2">OBJECTIF 2</label>
+            </div>
+            <div class="objective-item">
+                <input type="radio" id="obj3" name="objective" value="3">
+                <label for="obj3">OBJECTIF 3</label>
+            </div>
+            <div class="objective-item">
+                <input type="radio" id="independent" name="objective" value="independent" checked>
+                <label for="independent">TÂCHE INDÉPENDANTE</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>CRÉER NOUVELLE TÂCHE</h1>
+            <div class="points-badge">POINTS: 10</div>
+        </div>
+
+        <div class="form-container">
+            <form>
+                <div class="form-group">
+                    <label for="title">TITRE TÂCHE <span class="required">*</span></label>
+                    <input type="text" id="title" placeholder="Ex.: TÂCHE 1" value="Ex.: TÂCHE 1">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">DESCRIPTION (OPTIONNELLE)</label>
+                    <textarea id="description" placeholder="Lorem ipsum dolor sit amet...">Lorem ipsum dolor sit amet...</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="priority">PRIORITÉ <span class="required">*</span></label>
+                        <select id="priority">
+                            <option value="medium" selected>MOYENNE (10-10 PTS)</option>
+                            <option value="high">HAUTE (15-20 PTS)</option>
+                            <option value="low">BASSE (5-10 PTS)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="points">POINTS ATTRIBUÉS</label>
+                        <input type="number" id="points" value="10" min="1" max="100">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="due-date">ÉCHÉANCE</label>
+                        <input type="date" id="due-date" value="2024-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label for="recurrence">RÉCURRENCE</label>
+                        <select id="recurrence">
+                            <option value="unique" selected>TÂCHE UNIQUE</option>
+                            <option value="daily">QUOTIDIENNE</option>
+                            <option value="weekly">HEBDOMADAIRE</option>
+                            <option value="monthly">MENSUELLE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">CATÉGORIE</label>
+                    <select id="category">
+                        <option value="">SÉLECTIONNER CATÉGORIE</option>
+                        <option value="health">SANTÉ</option>
+                        <option value="work">TRAVAIL/ÉTUDES</option>
+                        <option value="leisure">LOISIRS</option>
+                        <option value="other">DIVERS</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>RAPPELS & NOTIFICATIONS</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="email-reminder" checked>
+                            <label for="email-reminder">RAPPEL EMAIL</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="web-notification" checked>
+                            <label for="web-notification">NOTIFICATION WEB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="day-before">
+                            <label for="day-before">1JOUR AVANT ÉCHÉANCE</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="daily-reminder">
+                            <label for="daily-reminder">RAPPEL QUOTIDIEN 10H</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-title">APERÇU TÂCHE</div>
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <span class="preview-label">PRIORITÉ:</span>
+                            <span class="preview-value">MOYENNE <span class="priority-indicator priority-medium"></span></span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">POINTS:</span>
+                            <span class="preview-value">10 PTS</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">RÉCURRENCE:</span>
+                            <span class="preview-value">UNIQUE</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">CATÉGORIE:</span>
+                            <span class="preview-value">CATÉGORIE 1</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">ÉCHÉANCE:</span>
+                            <span class="preview-value">01/01/2024</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">NOTIFICATIONS:</span>
+                            <span class="preview-value">EMAIL + WEB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel">ANNULER</button>
+                    <button type="submit" class="btn btn-primary">CRÉER TÂCHE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

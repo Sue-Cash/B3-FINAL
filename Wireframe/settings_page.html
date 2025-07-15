@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Paramètres</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .info-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .info-item {
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fafbfc;
+            cursor: pointer;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .theme-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .theme-option.light {
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+        }
+
+        .theme-option.dark {
+            background: linear-gradient(45deg, #333, #000);
+        }
+
+        .theme-option.selected {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-danger {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-success {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .status-inactive {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .status-connected {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        /* Security Section */
+        .security-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .security-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .security-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* Bottom Section */
+        .bottom-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .danger-zone {
+            background: #ffebee;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #f44336;
+        }
+
+        .danger-title {
+            color: #d32f2f;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .danger-text {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .version-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item active">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="info-panel">
+            <h3>INFO SÉCURITÉ</h3>
+            <div class="info-item">DERNIÈRE CONNEXION<br>ACCORD MUI 10:10</div>
+            <div class="info-item">2FA ✓ ACTIVÉ<br>GOOGLE ✓ LIÉ</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>PARAMÈTRES & CONFIGURATION</h1>
+            <div class="points-badge">POINTS: 10</div>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Profil Utilisateur -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">👤</div>
+                    <div class="card-title">PROFIL UTILISATEUR</div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">NOM COMPLET</label>
+                    <input type="text" class="setting-input" value="UTILISATEUR 1">
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">EMAIL</label>
+                    <input type="email" class="setting-input" value="UTILISATEUR@EMAIL.COM">
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">FUSEAU HORAIRE</label>
+                    <select class="setting-select">
+                        <option selected>EUROPE/PARIS (UTC+1)</option>
+                        <option>AMERICA/NEW_YORK (UTC-5)</option>
+                        <option>ASIA/TOKYO (UTC+9)</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">SAUVEGARDER</button>
+                </div>
+            </div>
+
+            <!-- Apparence -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-title">APPARENCE</div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">THÈME</label>
+                    <div class="theme-selector">
+                        <div class="theme-option light selected" title="Clair"></div>
+                        <div class="theme-option dark" title="Sombre"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">LANGUE</label>
+                    <select class="setting-select">
+                        <option selected>FRANÇAIS</option>
+                        <option>ENGLISH</option>
+                        <option>ESPAÑOL</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">FORMAT DATE</label>
+                    <select class="setting-select">
+                        <option selected>DD/MM/YYYY (FR)</option>
+                        <option>MM/DD/YYYY (US)</option>
+                        <option>YYYY-MM-DD (ISO)</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">APPLIQUER</button>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🔔</div>
+                    <div class="card-title">NOTIFICATIONS</div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">NOTIFICATIONS EMAIL</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rappels" checked>
+                            <label for="rappels">RAPPELS QUOTIDIENS (10H)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hebdo" checked>
+                            <label for="hebdo">RÉSUMÉ HEBDOMADAIRE (DIMANCHE)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mensuel">
+                            <label for="mensuel">RAPPORT MENSUEL PROGRESSION</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="objectifs" checked>
+                            <label for="objectifs">ALERTES ÉCHÉANCES IMPORTANTES</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">NOTIFICATIONS WEB</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="web-rappels" checked>
+                            <label for="web-rappels">RAPPELS TÂCHES</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="web-objectifs">
+                            <label for="web-objectifs">FÉLICITATIONS (OBJECTIFS ATTEINTS)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="web-badges" checked>
+                            <label for="web-badges">NOUVEAUX BADGES OBTENUS</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">CONFIGURER</button>
+                </div>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🔒</div>
+                    <div class="card-title">SÉCURITÉ</div>
+                </div>
+
+                <div class="security-item">
+                    <div class="security-title">CHANGER MOT DE PASSE</div>
+                    <input type="password" class="setting-input" placeholder="MOT DE PASSE ACTUEL" style="margin-bottom: 10px;">
+                    <input type="password" class="setting-input" placeholder="NOUVEAU MOT DE PASSE" style="margin-bottom: 10px;">
+                    <input type="password" class="setting-input" placeholder="CONFIRMER NOUVEAU MOT DE PASSE">
+                </div>
+
+                <div class="security-item">
+                    <div class="security-title">AUTHENTIFICATION 2 FACTEURS</div>
+                    <div class="security-desc">STATUT: <span class="status-indicator status-active">✓ ACTIVÉ</span></div>
+                    <button class="btn btn-danger">DÉSACTIVER 2FA</button>
+                </div>
+
+                <div class="security-item">
+                    <div class="security-title">COMPTE GOOGLE</div>
+                    <div class="security-desc">STATUT: <span class="status-indicator status-connected">✓ CONNECTÉ</span></div>
+                    <button class="btn btn-secondary">GÉRER LIAISON</button>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary">METTRE À JOUR SÉCURITÉ</button>
+                </div>
+            </div>
+
+            <!-- Données & Confidentialité -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">📂</div>
+                    <div class="card-title">DONNÉES & CONFIDENTIALITÉ</div>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">SAUVEGARDE AUTO</label>
+                    <select class="setting-select">
+                        <option selected>ACTIVÉE (QUOTIDIENNE)</option>
+                        <option>HEBDOMADAIRE</option>
+                        <option>MENSUELLE</option>
+                        <option>DÉSACTIVÉE</option>
+                    </select>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success">EXPORTER MES DONNÉES</button>
+                </div>
+
+                <div class="btn-group" style="margin-top: 10px;">
+                    <button class="btn btn-secondary">RÉINITIALISER PRÉFÉRENCES</button>
+                </div>
+
+                <div class="danger-zone" style="margin-top: 15px;">
+                    <div class="danger-title">ZONE DANGEREUSE</div>
+                    <div class="danger-text">
+                        LOREM IPSUM DOLOR SIT AMET CONSECTETUR ADIPISCING ELIT
+                    </div>
+                    <button class="btn btn-danger">SUPPRIMER COMPTE</button>
+                </div>
+            </div>
+
+            <!-- Session -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🚪</div>
+                    <div class="card-title">SESSION</div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="security-desc">
+                        CONNECTÉ EN TANT QUE<br>
+                        <strong>UTILISATEUR 1</strong>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-danger">SE DÉCONNECTER</button>
+                </div>
+
+                <div class="version-info">
+                    TaskCoeur v1.2.1<br>
+                    DERNIÈRE MAJ: 15 JUILLET 2025<br>
+                    <strong>NOTES VERSION • SUPPORT</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="bottom-grid">
+                <div>
+                    <h3 style="color: #333; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">PRÉFÉRENCES AVANCÉES</h3>
+                    
+                    <div class="setting-item">
+                        <label class="setting-label">SYNCHRONISATION AUTOMATIQUE</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="sync-objectives" checked>
+                                <label for="sync-objectives">Synchroniser objectifs</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="sync-tasks" checked>
+                                <label for="sync-tasks">Synchroniser tâches</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="sync-points" checked>
+                                <label for="sync-points">Synchroniser points</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">INTÉGRATIONS</label>
+                        <div class="status-indicator status-connected">Gmail API Connecté</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="color: #333; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">SUPPORT & AIDE</h3>
+                    
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                        <p style="color: #666; margin-bottom: 10px;">Besoin d'aide ? Consultez notre documentation ou contactez le support.</p>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary">DOCUMENTATION</button>
+                            <button class="btn btn-secondary">CONTACT SUPPORT</button>
+                        </div>
+                    </div>
+
+                    <div style="background: #e3f2fd; border-radius: 8px; padding: 15px;">
+                        <h4 style="color: #1976d2; margin-bottom: 8px;">🎉 NOUVEAUTÉS v1.2.1</h4>
+                        <ul style="color: #666; font-size: 0.9rem; line-height: 1.4;">
+                            <li>Amélioration des notifications</li>
+                            <li>Nouveau système de badges</li>
+                            <li>Optimisations performances</li>
+                            <li>Corrections de bugs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+                <div class="btn-group">
+                    <button class="btn btn-primary">SAUVEGARDER TOUS LES PARAMÈTRES</button>
+                    <button class="btn btn-secondary">RESTAURER PAR DÉFAUT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
