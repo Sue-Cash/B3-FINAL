@@ -1,0 +1,89 @@
+# ====================
+# Ruby on Rails
+# ====================
+# Logs and temp files
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+
+# Bundler
+/vendor/bundle
+/.bundle
+
+# Byebug history
+.byebug_history
+
+# SQLite (if jamais utilisé en dev)
+/db/*.sqlite3
+/db/*.sqlite3-journal
+
+# Assets and packs
+/public/packs
+/public/packs-test
+/public/assets
+
+# Active Storage
+/storage/*
+!/storage/.keep
+
+# Master key (keep out of VCS)
+/config/master.key
+
+# Coverage directory
+coverage/
+/spec/tmp
+
+# ====================
+# Node / Angular
+# ====================
+# Dependency directories
+/node_modules/
+/bower_components/
+
+# Build output
+/dist/
+/coverage/
+
+# Angular CLI
+/.angular/
+/.angular/cache/
+/.angular-builder
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lock files (optionnel selon gestionnaire)
+/package-lock.json
+/yarn.lock
+
+# ====================
+# Docker
+# ====================
+# Env files
+.env
+*.env
+
+# Docker Compose overrides
+docker-compose.override.yml
+
+# Generated Compose files
+docker-compose.*.yml
+docker-compose.*.env
+
+# ====================
+# IDEs & Editors
+# ====================
+# VSCode
+.vscode/
+
+# JetBrains
+.idea/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
