@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_15_145232) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_15_145329) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,6 +24,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_15_145232) do
     t.index ["user_id"], name: "index_objectives_on_user_id"
   end
 
+  create_table "tasks", force: :cascade do |t|
+    t.string "title"
+    t.integer "points"
+    t.integer "priority"
+    t.date "due_date"
+    t.string "status"
+    t.bigint "objective_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["objective_id"], name: "index_tasks_on_objective_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -33,4 +45,5 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_15_145232) do
   end
 
   add_foreign_key "objectives", "users"
+  add_foreign_key "tasks", "objectives"
 end
