@@ -42,3 +42,4 @@ end
 
 
 gem 'bcrypt', '~> 3.1.18'
+gem 'error_highlight', '~> 0.4.0'

@@ -93,6 +93,7 @@ GEM
     drb (2.2.3)
     erb (4.0.4)
       cgi (>= 0.3.3)
+    error_highlight (0.4.0)
     erubi (1.13.1)
     globalid (1.2.1)
       activesupport (>= 6.1)
@@ -244,6 +245,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   debug
+  error_highlight (~> 0.4.0)
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.2.2, >= 7.2.2.1)

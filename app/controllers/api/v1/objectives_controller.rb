@@ -47,8 +47,14 @@ module Api
         render json: { error: 'Objective not found' }, status: :not_found
       end
 
-      def objective_params
-        params.require(:objective).permit(:title, :description, :due_date, :user_id)
+        def objective_params
+            params.require(:objective).permit(
+            :title,
+            :description,
+            :due_date,
+            :user_id,
+            :category_id  
+            )
       end
     end
   end

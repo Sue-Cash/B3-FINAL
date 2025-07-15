@@ -52,12 +52,17 @@ module Api
 
       def task_params
         params.require(:task).permit(
-          :title,
-          :points,
-          :priority,
-          :due_date,
-          :status,
-          :objective_id
+            :title,
+            :description,
+            :due_date,
+            :completed_at,
+            :reminder_date,
+            :points,
+            :priority,
+            :status,
+            :frequency,
+            :objective_id,  
+            :user_id        
         )
       end
 

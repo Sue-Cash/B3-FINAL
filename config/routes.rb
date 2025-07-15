@@ -4,6 +4,7 @@ Rails.application.routes.draw do
       resources :users,      only: %i[index show create update destroy]
       resources :objectives, only: %i[index show create update destroy]
       resources :tasks,      only: %i[index show create update destroy]
+      resources :categories, only: %i[index show create update destroy]
     end
   end
 
