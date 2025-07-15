@@ -1,0 +1,28 @@
+# Dockerfile.backend
+FROM ruby:3.1
+
+# Install dependencies
+RUN apt-get update -qq && apt-get install -y \
+  build-essential \
+  libpq-dev \
+  nodejs \
+  yarn
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy Gemfile et Gemfile.lock puis installer les gems
+COPY Gemfile* ./
+RUN bundle install --jobs 4 --retry 3
+
+# Copier le reste de l’app
+COPY . .
+
+# Precompile assets (pour API-only, optionnel si pas d’assets)
+RUN /bin/bash -l -c "bundle exec rails assets:precompile" || true
+
+# Exposer le port Rails
+EXPOSE 3000
+
+# Commande par défaut
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

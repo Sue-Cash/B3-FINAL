@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Détail Objectif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .quick-actions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .action-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .action-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* Objective Header */
+        .objective-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .objective-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .objective-title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .objective-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .objective-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .objective-meta {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .progress-stats {
+            font-size: 1rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .progress-bar-large {
+            height: 20px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill-large {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            width: 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .category-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .difficulty-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* Tasks Section */
+        .tasks-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .tasks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .tasks-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tasks-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .tasks-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .task-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .task-completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .priority-low {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .due-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .due-completed {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .points-cell {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .btn-edit {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+        }
+
+        /* History Section */
+        .history-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .history-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-modify {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn-add-task {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-duplicate {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-complete {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .objective-title-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item active">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="quick-actions">
+            <h3>ACTIONS RAPIDES</h3>
+            <div class="action-item">📋 RETOUR LISTE OBJECTIFS</div>
+            <div class="action-item">✏️ MODIFIER CET OBJECTIF</div>
+            <div class="action-item">➕ AJOUTER TÂCHE</div>
+            <div class="action-item">📋 DUPLIQUER OBJECTIF</div>
+            <div class="action-item">🗑️ SUPPRIMER OBJECTIF</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>DÉTAIL OBJECTIF 1</h1>
+            <div class="points-badge">POINTS: 10</div>
+        </div>
+
+        <div class="objective-header">
+            <div class="objective-title-section">
+                <div>
+                    <div class="objective-title">OBJECTIF 1</div>
+                    <div class="objective-meta">CATÉGORIE 1 • DIFFICULTÉ: MOYENNE</div>
+                </div>
+                <div class="objective-status status-active">EN COURS</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <div class="progress-label">PROGRESSION GLOBALE</div>
+                    <div class="progress-stats">10/10 TÂCHES (10%) • 10 POINTS</div>
+                </div>
+                <div class="progress-bar-large">
+                    <div class="progress-fill-large">60% TERMINÉ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="card-title">INFORMATIONS GÉNÉRALES</div>
+                
+                <div class="info-row">
+                    <span class="info-label">TITRE</span>
+                    <span class="info-value">OBJECTIF 1</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">STATUT</span>
+                    <span class="info-value">
+                        <span class="objective-status status-active">EN COURS</span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">CATÉGORIE</span>
+                    <span class="info-value">
+                        <span class="category-badge">CATÉGORIE 1</span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">POINTS TOTAUX</span>
+                    <span class="info-value" style="color: #667eea; font-size: 1.1rem;">10/10 POINTS</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">DIFFICULTÉ</span>
+                    <span class="info-value">
+                        <span class="difficulty-badge">MOYENNE</span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">FRÉQUENCE</span>
+                    <span class="info-value">OBJECTIF UNIQUE</span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-title">PROGRESSION & PLANNING</div>
+                
+                <div class="info-row">
+                    <span class="info-label">DATE DE CRÉATION</span>
+                    <span class="info-value">10/07/2025</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">ÉCHÉANCE</span>
+                    <span class="info-value" style="color: #f57c00;">DANS 10 JOURS</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">PROGRESSION TÂCHES</span>
+                    <span class="info-value">10/10 TÂCHES (10%)</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">TEMPS RESTANT</span>
+                    <span class="info-value">10 JOURS</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card" style="margin-bottom: 30px;">
+            <div class="card-title">DESCRIPTION</div>
+            <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; border-radius: 8px; line-height: 1.6; color: #333; font-style: italic;">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <div class="card-title">TÂCHES ASSOCIÉES</div>
+            
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th>✓</th>
+                        <th>TÂCHE</th>
+                        <th>PRIORITÉ</th>
+                        <th>ÉCHÉANCE</th>
+                        <th>POINTS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="task-checkbox" checked>
+                        </td>
+                        <td>
+                            <span class="task-name task-completed">TÂCHE 1</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-high">HAUTE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-completed">HIER ✓</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="task-actions">
+                            <button class="btn-small btn-view">VOIR</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="task-checkbox" checked>
+                        </td>
+                        <td>
+                            <span class="task-name task-completed">TÂCHE 2</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-medium">MOYENNE</span>
+                        </td>
+                        <td>
+                            <span class="due-date due-completed">AUJOURD'HUI ✓</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="task-actions">
+                            <button class="btn-small btn-view">VOIR</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <span class="task-name">TÂCHE 3</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-high">HAUTE</span>
+                        </td>
+                        <td>
+                            <span class="due-date">DEMAIN</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="task-actions">
+                            <button class="btn-small btn-view">VOIR</button>
+                            <button class="btn-small btn-edit">MODIFIER</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <span class="task-name">TÂCHE 4</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-medium">MOYENNE</span>
+                        </td>
+                        <td>
+                            <span class="due-date">DANS 10 JOURS</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="task-actions">
+                            <button class="btn-small btn-view">VOIR</button>
+                            <button class="btn-small btn-edit">MODIFIER</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="task-checkbox">
+                        </td>
+                        <td>
+                            <span class="task-name">TÂCHE 5</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-low">BASSE</span>
+                        </td>
+                        <td>
+                            <span class="due-date">DANS 10 JOURS</span>
+                        </td>
+                        <td class="points-cell">10 PTS</td>
+                        <td class="task-actions">
+                            <button class="btn-small btn-view">VOIR</button>
+                            <button class="btn-small btn-edit">MODIFIER</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="history-section">
+            <div class="card-title">HISTORIQUE & ACTIVITÉ</div>
+            
+            <div class="history-item">
+                10/07/2025 10:00 - OBJECTIF CRÉÉ
+            </div>
+            <div class="history-item">
+                10/07/2025 10:30 - TÂCHE 1 AJOUTÉE
+            </div>
+            <div class="history-item">
+                10/07/2025 10:30 - TÂCHE 2 AJOUTÉE (AU RETARD)
+            </div>
+            <div class="history-item">
+                10/07/2025 06:00 - TÂCHE 3 TERMINÉE (AU RETARD)
+            </div>
+            <div class="history-item">
+                10/07/2025 06:00 - TÂCHE 3 TERMINÉE (AU RETARD)
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-back">RETOUR</button>
+            <button class="btn btn-modify">MODIFIER</button>
+            <button class="btn btn-add-task">AJOUTER TÂCHE</button>
+            <button class="btn btn-duplicate">DUPLIQUER</button>
+            <button class="btn btn-delete">SUPPRIMER</button>
+            <button class="btn btn-complete">MARQUER TERMINÉ</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: taskcoeur
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: taskcoeur_development
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: bundle exec rails server -b 0.0.0.0
+    volumes:
+      - .:/usr/src/app
+    environment:
+      DATABASE_URL: postgres://taskcoeur:secretpassword@db:5432/taskcoeur_development
+      RAILS_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    command: npm run start -- --host 0.0.0.0
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+
+volumes:
+  db-data:

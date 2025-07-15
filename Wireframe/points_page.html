@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCoeur - Mes Points</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffd700;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #ffd700;
+        }
+
+        .filters {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .filter-item input[type="radio"], .filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-apply {
+            width: 100%;
+            padding: 10px;
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 5px solid;
+        }
+
+        .stat-card.total { border-top-color: #667eea; }
+        .stat-card.level { border-top-color: #ffd700; }
+        .stat-card.week { border-top-color: #4ecdc4; }
+        .stat-card.success { border-top-color: #45b7d1; }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Evolution Chart */
+        .evolution-chart {
+            height: 200px;
+            position: relative;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chart-line {
+            stroke: #667eea;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .chart-area {
+            fill: url(#gradient);
+            opacity: 0.3;
+        }
+
+        .chart-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Pie Chart */
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .pie-slice {
+            transform-origin: center;
+        }
+
+        .pie-legend {
+            list-style: none;
+        }
+
+        .pie-legend li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        .legend-color.cat1 { background: #667eea; }
+        .legend-color.cat2 { background: #764ba2; }
+        .legend-color.cat3 { background: #4ecdc4; }
+        .legend-color.cat4 { background: #45b7d1; }
+
+        /* Badges Section */
+        .badges-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .badge-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .badge-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .badge-title {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .badge-subtitle {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Level Progress */
+        .level-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .level-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .level-progress-bar {
+            height: 20px;
+            background: #e0e6ed;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .level-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            width: 75%;
+            position: relative;
+        }
+
+        .level-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .level-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>NAVIGATION</h2>
+        
+        <div class="nav-item">
+            <span>📊</span> TABLEAU DE BORD
+        </div>
+        <div class="nav-item">
+            <span>🎯</span> OBJECTIFS
+        </div>
+        <div class="nav-item">
+            <span>📝</span> TÂCHES
+        </div>
+        <div class="nav-item active">
+            <span>⭐</span> MES POINTS
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span> PARAMÈTRES
+        </div>
+
+        <div class="filters">
+            <h3>PÉRIODE ANALYSE</h3>
+            <div class="filter-item">
+                <input type="radio" id="week" name="period" checked>
+                <label for="week">CETTE SEMAINE</label>
+            </div>
+            <div class="filter-item">
+                <input type="radio" id="month" name="period">
+                <label for="month">CE MOIS</label>
+            </div>
+            <div class="filter-item">
+                <input type="radio" id="year" name="period">
+                <label for="year">10 DERNIERS MOIS</label>
+            </div>
+            <div class="filter-item">
+                <input type="radio" id="all" name="period">
+                <label for="all">CETTE ANNÉE</label>
+            </div>
+
+            <h3 style="margin-top: 20px;">PAR CATÉGORIE</h3>
+            <div class="filter-item">
+                <input type="checkbox" id="cat1" checked>
+                <label for="cat1">CATÉGORIE 1</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat2" checked>
+                <label for="cat2">CATÉGORIE 2</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat3" checked>
+                <label for="cat3">CATÉGORIE 3</label>
+            </div>
+            <div class="filter-item">
+                <input type="checkbox" id="cat4" checked>
+                <label for="cat4">CATÉGORIE 4</label>
+            </div>
+            <button class="btn-apply">ACTUALISER</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>MES POINTS & STATISTIQUES</h1>
+            <div class="points-badge">POINTS: 10 • NIVEAU 10</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <h3>10</h3>
+                <p>POINTS TOTAUX</p>
+            </div>
+            <div class="stat-card level">
+                <h3>NIVEAU 10</h3>
+                <p>NIVEAU ACTUEL</p>
+            </div>
+            <div class="stat-card week">
+                <h3>10</h3>
+                <p>POINTS CETTE SEMAINE</p>
+            </div>
+            <div class="stat-card success">
+                <h3>10%</h3>
+                <p>TAUX DE RÉUSSITE</p>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">ÉVOLUTION POINTS</div>
+                <div class="evolution-chart">
+                    <svg width="100%" height="100%" viewBox="0 0 400 150">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
+                                <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.1" />
+                            </linearGradient>
+                        </defs>
+                        <path class="chart-area" d="M 50 120 L 80 100 L 120 80 L 160 90 L 200 70 L 240 60 L 280 40 L 320 30 L 350 20 L 350 120 Z"/>
+                        <path class="chart-line" d="M 50 120 L 80 100 L 120 80 L 160 90 L 200 70 L 240 60 L 280 40 L 320 30 L 350 20"/>
+                        <!-- Points on the line -->
+                        <circle cx="50" cy="120" r="4" fill="#667eea"/>
+                        <circle cx="80" cy="100" r="4" fill="#667eea"/>
+                        <circle cx="120" cy="80" r="4" fill="#667eea"/>
+                        <circle cx="160" cy="90" r="4" fill="#667eea"/>
+                        <circle cx="200" cy="70" r="4" fill="#667eea"/>
+                        <circle cx="240" cy="60" r="4" fill="#667eea"/>
+                        <circle cx="280" cy="40" r="4" fill="#667eea"/>
+                        <circle cx="320" cy="30" r="4" fill="#667eea"/>
+                        <circle cx="350" cy="20" r="4" fill="#667eea"/>
+                    </svg>
+                </div>
+                <div class="chart-info">
+                    TENDANCE: +10% CE MOIS<br>
+                    OBJECTIF: 10 PTS AVANT FIN MOIS
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">RÉPARTITION CATÉGORIES</div>
+                <div class="pie-chart">
+                    <svg width="150" height="150" viewBox="0 0 150 150">
+                        <circle cx="75" cy="75" r="60" fill="#667eea" stroke="white" stroke-width="2" 
+                                stroke-dasharray="94.25 282.74" stroke-dashoffset="0" transform="rotate(-90 75 75)"/>
+                        <circle cx="75" cy="75" r="60" fill="#764ba2" stroke="white" stroke-width="2" 
+                                stroke-dasharray="94.25 282.74" stroke-dashoffset="-94.25" transform="rotate(-90 75 75)"/>
+                        <circle cx="75" cy="75" r="60" fill="#4ecdc4" stroke="white" stroke-width="2" 
+                                stroke-dasharray="94.25 282.74" stroke-dashoffset="-188.5" transform="rotate(-90 75 75)"/>
+                        <circle cx="75" cy="75" r="60" fill="#45b7d1" stroke="white" stroke-width="2" 
+                                stroke-dasharray="94.25 282.74" stroke-dashoffset="-282.75" transform="rotate(-90 75 75)"/>
+                    </svg>
+                </div>
+                <ul class="pie-legend">
+                    <li><div class="legend-color cat1"></div>CATÉGORIE 1: 10% (10 PTS)</li>
+                    <li><div class="legend-color cat2"></div>CATÉGORIE 2: 10% (10 PTS)</li>
+                    <li><div class="legend-color cat3"></div>CATÉGORIE 3: 10% (10 PTS)</li>
+                    <li><div class="legend-color cat4"></div>CATÉGORIE 4: 10% (10 PTS)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="badges-section">
+            <div class="section-title">BADGES & RÉCOMPENSES</div>
+            <div class="badges-grid">
+                <div class="badge-card">
+                    <div class="badge-icon">[ICÔNE 1]</div>
+                    <div class="badge-title">SÉRIE 10 JOURS</div>
+                    <div class="badge-subtitle">DÉBLOQUÉ</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">[ICÔNE 2]</div>
+                    <div class="badge-title">BADGE 1</div>
+                    <div class="badge-subtitle">DÉBLOQUÉ</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">[ICÔNE 3]</div>
+                    <div class="badge-title">BADGE 2</div>
+                    <div class="badge-subtitle">10/10 OBJ</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">[ICÔNE 4]</div>
+                    <div class="badge-title">BADGE 3</div>
+                    <div class="badge-subtitle">10/10</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-section">
+            <div class="level-header">
+                <div class="section-title">NIVEAU SUIVANT</div>
+            </div>
+            <div class="level-progress-bar">
+                <div class="level-progress-fill">
+                    <div class="level-progress-text">10 POINTS POUR NIVEAU 10</div>
+                </div>
+            </div>
+            <div class="level-info">Continuez comme ça ! Vous êtes sur la bonne voie.</div>
+        </div>
+    </div>
+</body>
+</html>
