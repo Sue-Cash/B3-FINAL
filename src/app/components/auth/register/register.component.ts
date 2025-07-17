@@ -1,8 +1,8 @@
-// register.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -18,7 +18,7 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private auth: AuthService,
     private router: Router
   ) {
     this.registerForm = this.fb.group({
@@ -30,13 +30,12 @@ export class RegisterComponent {
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
-    
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
+    const pw = form.get('password');
+    const cpw = form.get('confirmPassword');
+    if (pw && cpw && pw.value !== cpw.value) {
+      cpw.setErrors({ passwordMismatch: true });
     } else {
-      confirmPassword?.setErrors(null);
+      cpw?.setErrors(null);
     }
   }
 
@@ -48,31 +47,27 @@ export class RegisterComponent {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  async onSubmit() {
-    if (this.registerForm.valid) {
-      this.loading = true;
-      this.errorMessage = '';
-      
-      try {
-        await this.authService.register(this.registerForm.value);
-        this.router.navigate(['/login']);
-      } catch (error: any) {
-        this.errorMessage = error.message || 'Une erreur est survenue lors de l\'inscription';
-      } finally {
+  onSubmit() {
+    if (!this.registerForm.valid) return;
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.auth.signup({
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password
+    }).subscribe({
+      next: () => {
         this.loading = false;
+        this.router.navigate(['/login']);
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMessage = err.error?.message 
+          || 'An error occurred during registration';
       }
-    }
+    });
   }
 
-  async signUpWithGoogle() {
-    this.loading = true;
-    try {
-      await this.authService.signInWithGoogle();
-      this.router.navigate(['/dashboard']);
-    } catch (error: any) {
-      this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
-    } finally {
-      this.loading = false;
-    }
-  }
+  // you can remove signUpWithGoogle() until you add that to AuthService
 }
