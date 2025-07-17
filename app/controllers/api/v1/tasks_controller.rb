@@ -21,7 +21,7 @@ module Api
 
       # POST /api/v1/tasks
       def create
-        task = Task.new(task_params)
+        task = @current_user.direct_tasks.build(task_params)
         if task.save
           render json: task, status: :created
         else
@@ -47,22 +47,14 @@ module Api
       private
 
       def set_task
-        @task = Task.find(params.require(:id))
+        @task = @current_user.direct_tasks.find(params.require(:id))
       end
 
       def task_params
         params.require(:task).permit(
-            :title,
-            :description,
-            :due_date,
-            :completed_at,
-            :reminder_date,
-            :points,
-            :priority,
-            :status,
-            :frequency,
-            :objective_id,  
-            :user_id        
+          :title, :description, :due_date, :completed_at,
+          :reminder_date, :points, :priority, :status,
+          :frequency, :objective_id  # on garde objective_id pour rattacher la tâche, mais pas user_id
         )
       end
 

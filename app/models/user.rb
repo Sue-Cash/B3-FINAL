@@ -13,8 +13,7 @@ class User < ApplicationRecord
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :username, presence: true, uniqueness: true, length: { minimum: 3 }
-  validates :total_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :level, presence: true, numericality: { greater_than: 0 }
+
   
   # Callbacks
   after_create :create_default_mail_config, :create_default_categories

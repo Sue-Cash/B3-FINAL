@@ -1,12 +1,24 @@
 module Api
   module V1
     class ObjectivesController < ApplicationController
+      # on protège tout : authentification JWT obligatoire
+      before_action :authenticate_request
       before_action :set_objective, only: %i[show update destroy]
 
       # GET /api/v1/objectives
       def index
-        objectives = Objective.all
-        render json: objectives, status: :ok
+        render json: @current_user.objectives, status: :ok
+      end
+
+      # POST /api/v1/objectives
+      def create
+        # on crée toujours pour le user courant
+        obj = @current_user.objectives.build(objective_params)
+        if obj.save
+          render json: obj, status: :created
+        else
+          render json: { errors: obj.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       # GET /api/v1/objectives/:id
@@ -14,17 +26,7 @@ module Api
         render json: @objective, status: :ok
       end
 
-      # POST /api/v1/objectives
-      def create
-        objective = Objective.new(objective_params)
-        if objective.save
-          render json: objective, status: :created
-        else
-          render json: { errors: objective.errors.full_messages }, status: :unprocessable_entity
-        end
-      end
-
-      # PUT/PATCH /api/v1/objectives/:id
+      # PATCH/PUT /api/v1/objectives/:id
       def update
         if @objective.update(objective_params)
           render json: @objective, status: :ok
@@ -42,19 +44,13 @@ module Api
       private
 
       def set_objective
-        @objective = Objective.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Objective not found' }, status: :not_found
+        # on ne peut accéder qu’à ses propres objectifs
+        @objective = @current_user.objectives.find(params.require(:id))
       end
 
-        def objective_params
-            params.require(:objective).permit(
-            :title,
-            :description,
-            :due_date,
-            :user_id,
-            :category_id  
-            )
+      def objective_params
+        # ne plus autoriser :user_id, on ne la passe plus depuis le client
+        params.require(:objective).permit(:title, :description, :due_date, :category_id)
       end
     end
   end
