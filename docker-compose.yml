@@ -26,7 +26,7 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/taskcoeur_development
       RAILS_ENV: development
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-your_master_key_here}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-8d4041cf4d4868abacc77bbf18cfcee8}
     command: >
       bash -c "
         rm -f tmp/pids/server.pid &&
@@ -48,8 +48,9 @@ services:
     depends_on:
       - api
     environment:
-      - API_URL=http://api:3000
-    command: npm start
+      API_URL: http://api:3000
+    # override npm start so ng serve listens on 0.0.0.0
+    command: npm start -- --host 0.0.0.0
 
 volumes:
   postgres_data:
