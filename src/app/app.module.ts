@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // Guards
@@ -10,7 +11,6 @@ import { TokenInterceptor } from './interceptors/token.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 @NgModule({
-  // no declarations: everything is standalone
   providers: [
     AuthGuard,
     NoAuthGuard,
