@@ -1,0 +1,107 @@
+<!-- register.component.html -->
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>INSCRIPTION TASKCOEUR</h1>
+      <p class="subtitle">Rejoignez l'aventure gamifiée</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">NOM COMPLET</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          placeholder="Votre nom"
+          [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+        />
+        <div class="error-message" *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+          <span *ngIf="registerForm.get('username')?.errors?.['required']">Le nom est requis</span>
+          <span *ngIf="registerForm.get('username')?.errors?.['minlength']">Le nom doit contenir au moins 3 caractères</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">EMAIL</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="utilisateur@exemple.com"
+          [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        <div class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <span *ngIf="registerForm.get('email')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="registerForm.get('email')?.errors?.['email']">L'email n'est pas valide</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">MOT DE PASSE</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            placeholder="••••••••"
+            [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+          />
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+            <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <span *ngIf="registerForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+          <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">CONFIRMER MOT DE PASSE</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            placeholder="••••••••"
+            [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+          />
+          <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()">
+            <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
+          Les mots de passe ne correspondent pas
+        </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || registerForm.invalid">
+        <span *ngIf="!loading">CRÉER COMPTE</span>
+        <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>ou</span>
+    </div>
+
+    <button class="btn btn-google" (click)="signUpWithGoogle()" [disabled]="loading">
+      <img src="assets/google-icon.svg" alt="Google" />
+      INSCRIPTION GOOGLE
+    </button>
+
+    <div class="auth-footer">
+      <a routerLink="/login" class="link">DÉJÀ UN COMPTE ? CONNEXION</a>
+      <a href="#" class="link">MAIL DE CONFIRMATION SERA ENVOYÉ</a>
+    </div>
+  </div>
+</div>

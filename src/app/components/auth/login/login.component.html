@@ -1,0 +1,125 @@
+<!-- login.component.html -->
+<div class="auth-container">
+  <div class="auth-card" *ngIf="!show2FA">
+    <div class="auth-header">
+      <h1>TASKCOEUR</h1>
+      <p class="subtitle">Transformez vos tâches en victoires</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">EMAIL</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="utilisateur@exemple.com"
+          [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        />
+        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">L'email n'est pas valide</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">MOT DE PASSE</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            placeholder="••••••••"
+            [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          />
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+            <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Le mot de passe est requis
+        </div>
+      </div>
+
+      <div class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="rememberMe"
+          [(ngModel)]="rememberMe"
+          [ngModelOptions]="{standalone: true}"
+        />
+        <label class="form-check-label" for="rememberMe">
+          Se souvenir de moi
+        </label>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || loginForm.invalid">
+        <span *ngIf="!loading">SE CONNECTER</span>
+        <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>ou</span>
+    </div>
+
+    <button class="btn btn-google" (click)="signInWithGoogle()" [disabled]="loading">
+      <img src="assets/google-icon.svg" alt="Google" />
+      CONNEXION GOOGLE
+    </button>
+
+    <div class="auth-footer">
+      <a routerLink="/register" class="link">PAS DE COMPTE ? INSCRIPTION</a>
+      <a (click)="forgotPassword()" class="link pointer">MOT DE PASSE OUBLIÉ ?</a>
+      <small class="text-muted">CODE 2FA REQUIS APRÈS CONNEXION</small>
+    </div>
+  </div>
+
+  <!-- Vue 2FA -->
+  <div class="auth-card" *ngIf="show2FA">
+    <div class="auth-header">
+      <h2>Vérification à deux facteurs</h2>
+      <p class="subtitle">Entrez le code envoyé sur votre appareil</p>
+    </div>
+
+    <form [formGroup]="twoFactorForm" (ngSubmit)="submit2FA()">
+      <div class="form-group">
+        <label for="code">CODE 2FA</label>
+        <input
+          type="text"
+          id="code"
+          formControlName="code"
+          class="form-control text-center code-input"
+          placeholder="000000"
+          maxlength="6"
+          pattern="[0-9]*"
+          inputmode="numeric"
+          [class.error]="twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched"
+        />
+        <div class="error-message" *ngIf="twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched">
+          Le code doit contenir 6 chiffres
+        </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || twoFactorForm.invalid">
+        <span *ngIf="!loading">VÉRIFIER</span>
+        <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+      </button>
+
+      <div class="text-center mt-3">
+        <a (click)="show2FA = false" class="link pointer">Retour à la connexion</a>
+      </div>
+    </form>
+  </div>
+</div>

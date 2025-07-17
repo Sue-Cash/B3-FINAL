@@ -1,0 +1,166 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>NAVIGATION</h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-chart-line"></i> TABLEAU DE BORD
+      </a>
+      <a routerLink="/objectives" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-bullseye"></i> OBJECTIFS
+      </a>
+      <a routerLink="/tasks" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-tasks"></i> TÂCHES
+      </a>
+      <a routerLink="/points" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-trophy"></i> MES POINTS
+      </a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <i class="fas fa-cog"></i> PARAMÈTRES
+      </a>
+    </nav>
+
+    <div class="sidebar-filters">
+      <h3>FILTRES</h3>
+      <div class="filter-options">
+        <label class="filter-checkbox">
+          <input type="checkbox" checked />
+          <span>CATÉGORIE 1</span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" checked />
+          <span>CATÉGORIE 2</span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" checked />
+          <span>CATÉGORIE 3</span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" checked />
+          <span>CATÉGORIE 4</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn btn-apply">APPLIQUER</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-header">
+      <h1>TABLEAU DE BORD</h1>
+      <div class="user-info">
+        <span class="points-badge">POINTS: {{ stats.currentPoints }}</span>
+        <button class="btn-logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard-grid" *ngIf="!loading">
+      <!-- Progress Cards -->
+      <div class="progress-cards">
+        <div class="progress-card hebdomadaire">
+          <h3>HEBDOMADAIRE</h3>
+          <div class="progress-value">{{ getProgressPercentage('weekly') }} ({{ stats.tasksCompleted }}/{{ stats.totalTasks }} TÂCHES)</div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="getProgressPercentage('weekly')"></div>
+          </div>
+        </div>
+
+        <div class="progress-card mensuel">
+          <h3>MENSUEL</h3>
+          <div class="progress-value">{{ getProgressPercentage('monthly') }} ({{ stats.tasksCompleted }}/{{ stats.totalTasks }} TÂCHES)</div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="getProgressPercentage('monthly')"></div>
+          </div>
+        </div>
+
+        <div class="progress-card objectifs">
+          <h3>OBJECTIFS</h3>
+          <div class="progress-value">{{ getProgressPercentage('objectives') }} ({{ stats.objectivesActive }}/{{ stats.totalObjectives }} TERMINÉS)</div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width]="getProgressPercentage('objectives')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-value">{{ stats.tasksCompleted }}</div>
+          <div class="stat-label">TÂCHES AUJOURD'HUI</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <div class="stat-value">{{ stats.objectivesActive }}</div>
+          <div class="stat-label">OBJECTIFS ACTIFS</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stat-value">{{ stats.weeklyProgress }}%</div>
+          <div class="stat-label">TAUX DE RÉUSSITE</div>
+        </div>
+
+        <div class="stat-card niveau">
+          <div class="stat-icon">
+            <i class="fas fa-medal"></i>
+          </div>
+          <div class="stat-value">NIVEAU {{ stats.currentLevel }}</div>
+          <div class="stat-label">NIVEAU ACTUEL</div>
+          <div class="level-badge">NIVEAU ACTUEL</div>
+        </div>
+      </div>
+
+      <!-- Active Objectives -->
+      <div class="objectives-section">
+        <div class="section-header">
+          <h2>OBJECTIFS ACTIFS</h2>
+          <button class="btn btn-new" (click)="createNewObjective()">+ NOUVEL OBJECTIF</button>
+        </div>
+
+        <div class="objectives-list">
+          <div class="objective-card" *ngFor="let objective of activeObjectives">
+            <div class="objective-header">
+              <h3>{{ objective.title }}</h3>
+              <span class="objective-progress">PROGRESSION: {{ objective.progress }}% • {{ objective.points }} POINTS</span>
+            </div>
+            
+            <div class="tasks-checklist">
+              <label class="task-item" *ngFor="let task of objective.tasks">
+                <input type="checkbox" [checked]="task.completed" disabled />
+                <span [class.completed]="task.completed">{{ task.title }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="activeObjectives.length === 0">
+            <i class="fas fa-clipboard-list"></i>
+            <p>Aucun objectif actif</p>
+            <button class="btn btn-primary" (click)="createNewObjective()">Créer un objectif</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Chargement...</span>
+      </div>
+    </div>
+  </main>
+</div>
