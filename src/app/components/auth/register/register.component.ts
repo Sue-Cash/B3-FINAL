@@ -1,11 +1,18 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-
-import { AuthService } from '../../../services/auth.service';
+import { Component }             from '@angular/core';
+import { CommonModule }          from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule, Router }  from '@angular/router';
+import { AuthService }           from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    RouterModule
+  ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
@@ -23,51 +30,42 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
+      email:    ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
-    }, { validator: this.passwordMatchValidator });
+    }, { validators: this.passwordMatchValidator });
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const pw = form.get('password');
-    const cpw = form.get('confirmPassword');
-    if (pw && cpw && pw.value !== cpw.value) {
-      cpw.setErrors({ passwordMismatch: true });
+    const p = form.get('password');
+    const c = form.get('confirmPassword');
+    if (p && c && p.value !== c.value) {
+      c.setErrors({ passwordMismatch: true });
     } else {
-      cpw?.setErrors(null);
+      c?.setErrors(null);
     }
   }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
-
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit() {
-    if (!this.registerForm.valid) return;
-
+    if (this.registerForm.invalid) return;
     this.loading = true;
     this.errorMessage = '';
-
-    this.auth.signup({
-      email: this.registerForm.value.email,
-      password: this.registerForm.value.password
-    }).subscribe({
+    this.auth.signup(this.registerForm.value).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/login']);
       },
       error: err => {
         this.loading = false;
-        this.errorMessage = err.error?.message 
-          || 'An error occurred during registration';
+        this.errorMessage = err.error?.message || 'An error occurred during registration';
       }
     });
   }
-
-  // you can remove signUpWithGoogle() until you add that to AuthService
 }
