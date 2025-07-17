@@ -7,13 +7,12 @@ Rails.application.routes.draw do
       post 'auth/logout', to: 'authentication#logout'
       
       # Resources existantes
-      resources :users, only: %i[index show create update destroy]
-      resources :objectives, only: %i[index show create update destroy]
-      resources :tasks, only: %i[index show create update destroy]
-      resources :categories, only: %i[index show create update destroy]
-      
-      # Nouvelles resources
+      resources :users,       only:       %i[index show update destroy]
+      resources :objectives,  only:       %i[index show create update destroy]
+      resources :tasks,       only:       %i[index show create update destroy]
+      resources :categories,  only:       %i[index show create update destroy]
       resources :notifications, only: %i[index show update]
+      
     end
   end
 end
