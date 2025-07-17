@@ -45,3 +45,4 @@ end
 gem 'bcrypt', '~> 3.1.7'
 gem 'error_highlight', '~> 0.4.0'
 gem 'jwt', '~> 2.6'
+gem 'rack-cors', require: 'rack/cors'
