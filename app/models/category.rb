@@ -1,8 +1,5 @@
  class Category < ApplicationRecord
 
-  # Allow system / default categories with no user
-  belongs_to :user, optional: true
-
    has_many :objectives, dependent: :destroy
 
    validates :name, presence: true, length: { maximum: 50 }

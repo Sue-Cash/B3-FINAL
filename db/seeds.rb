@@ -11,53 +11,50 @@ user = User.create!(
   email:                 'test@gmail.com',
   username:              'test',
   password:              'test01',
-  password_confirmation: 'test01',
-  total_points:          0,
-  level:                 1
+  password_confirmation: 'test01'
 )
 
-# 3) Four fixed categories
-category_names = {
-  'SANTE'           => '❤️',
-  'PROFESSIONNELLE' => '💼',
-  'PERSONNELLE'     => '🏠',
-  'DIVERS'          => '🔧'
-}
+# 3) Four global categories
+['SANTE', 'PROFESSIONNELLE', 'PERSONNELLE', 'DIVERS'].each do |name|
+  icon = case name
+    when 'SANTE'           then '❤️'
+    when 'PROFESSIONNELLE' then '💼'
+    when 'PERSONNELLE'     then '🏠'
+    when 'DIVERS'          then '🔧'
+  end
 
-categories = category_names.map do |name, icon|
   Category.create!(
     name:  name,
     icon:  icon,
-    color: '#CCCCCC'  # adjust default color if you wish
+    color: '#CCCCCC'
   )
 end
 
-# 4) One sample objective in the “SANTE” category
-sante_category = categories.find { |c| c.name == 'SANTE' }
-
+# 4) Sample objective in SANTE
+sante = Category.find_by!(name: 'SANTE')
 objective = Objective.create!(
-  title:           'Faire 30 minutes de sport',
-  description:     'Routine quotidienne pour la santé',
-  user:            user,
-  category:        sante_category,
-  status:          'IN_PROGRESS',
-  priority:        3,
-  total_points:    50,
-  due_date:        1.week.from_now.to_date,
-  frequency:       'UNIQUE'  
+  title:        'Faire 30 minutes de sport',
+  description:  'Routine quotidienne pour la santé',
+  user:         user,
+  category:     sante,
+  status:       'IN_PROGRESS',
+  priority:     3,
+  total_points: 50,
+  due_date:     1.week.from_now.to_date,
+  frequency:    'DAILY'
 )
 
-# 5) One sample task under that objective
+# 5) Sample task
 Task.create!(
-  title:        'Courir 5 km',
-  description:  'Aller courir autour du parc',
-  user:         user,
-  objective:    objective,
-  status:       'TODO',
-  priority:     2,
-  points:       10,
-  due_date:     Date.today,
-  frequency:    'DAILY'
+  title:       'Courir 5 km',
+  description: 'Aller courir autour du parc',
+  user:        user,
+  objective:   objective,
+  status:      'TODO',
+  priority:    2,
+  points:      10,
+  due_date:    Date.today,
+  frequency:   'UNIQUE'
 )
 
 puts "Seed complete!"

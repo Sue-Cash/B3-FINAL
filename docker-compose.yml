@@ -27,10 +27,10 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/taskcoeur_development
       RAILS_ENV: development
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-8d4041cf4d4868abacc77bbf18cfcee8}
+    # On retire la partie db:create/db:migrate/db:seed pour ne lancer que le serveur
     command: >
       bash -c "
         rm -f tmp/pids/server.pid &&
-        bundle exec rails db:create db:migrate db:seed &&
         bundle exec rails server -b 0.0.0.0
       "
 
@@ -49,7 +49,6 @@ services:
       - api
     environment:
       API_URL: http://api:3000
-    # override npm start so ng serve listens on 0.0.0.0
     command: npm start -- --host 0.0.0.0
 
 volumes:
