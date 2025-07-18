@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule }      from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { TaskService, Task } from '../../services/task.service';
-import { ObjectiveService, Objective } from '../../services/objective.service';
+import { TaskService, Task }    from '../../services/task.service';
+import { ObjectiveService     } from '../../services/objective.service';
+import { Objective            } from '../../models/objective.model';
 import { UserService, UserProfile, UserStats } from '../../services/user.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService          } from '../../services/auth.service';
 
-// Define missing interfaces
 interface DashboardStats {
   tasksCompleted: number;
   totalTasks: number;
@@ -18,17 +18,16 @@ interface DashboardStats {
   monthlyProgress: number;
 }
 
+// Include both progress and a points alias
 interface ObjectiveWithProgress extends Objective {
   progress: number;
+  points: number;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule
-  ],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -63,7 +62,6 @@ export class DashboardComponent implements OnInit {
       await this.loadDashboardData();
     } catch (err) {
       console.error('Erreur dashboard:', err);
-      // Optionally redirect to login if error
       if (err instanceof Error && err.message.includes('401')) {
         this.router.navigate(['/login']);
       }
@@ -84,46 +82,45 @@ export class DashboardComponent implements OnInit {
   private async loadDashboardData() {
     const [tasks, objectives, userStats] = await Promise.all([
       this.taskService.getUserTasks().toPromise(),
-      this.objectiveService.getUserObjectives().toPromise(),
+      this.objectiveService.getObjectives().toPromise(), // ← updated
       this.userService.getUserStats().toPromise()
     ]);
 
-    // Handle potentially undefined values
     if (tasks) {
-      this.stats.totalTasks = tasks.length;
-      this.stats.tasksCompleted = tasks.filter(t => t.completed).length;
+      this.stats.totalTasks    = tasks.length;
+      this.stats.tasksCompleted = tasks.filter((t: Task) => t.completed).length;
     }
 
     if (objectives) {
       this.stats.totalObjectives = objectives.length;
-      this.stats.objectivesActive = objectives.filter(o => o.status === 'IN_PROGRESS').length;
-      
+      this.stats.objectivesActive = objectives.filter((o: Objective) => o.status === 'IN_PROGRESS').length;
+
       this.activeObjectives = objectives
-        .filter(o => o.status === 'IN_PROGRESS')
+        .filter((o: Objective) => o.status === 'IN_PROGRESS')
         .slice(0, 3)
-        .map(o => ({
+        .map((o: Objective) => ({
           ...o,
-          progress: this.calculateProgress(o.tasks || [])
+          progress: this.calculateProgress(o.tasks || []),
+          points:   o.total_points || 0      // ← alias for template’s `objective.points`
         }));
     }
 
     if (userStats) {
-      this.stats.currentLevel = userStats.level;
-      this.stats.currentPoints = userStats.points;
+      this.stats.currentLevel   = userStats.level;
+      this.stats.currentPoints  = userStats.points;
       this.stats.weeklyProgress = userStats.weeklyProgress;
       this.stats.monthlyProgress = userStats.monthlyProgress;
     }
   }
 
   private calculateProgress(tasks: Task[]): number {
-    if (!tasks || tasks.length === 0) return 0;
-    return Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100);
+    if (tasks.length === 0) return 0;
+    return Math.round((tasks.filter((t: Task) => t.completed).length / tasks.length) * 100);
   }
 
   getProgressPercentage(type: 'weekly' | 'monthly' | 'objectives'): string {
-    if (type === 'weekly') return `${this.stats.weeklyProgress}%`;
+    if (type === 'weekly')  return `${this.stats.weeklyProgress}%`;
     if (type === 'monthly') return `${this.stats.monthlyProgress}%`;
-    // objectives
     return this.stats.totalObjectives > 0
       ? `${Math.round((this.stats.objectivesActive / this.stats.totalObjectives) * 100)}%`
       : '0%';
@@ -132,12 +129,13 @@ export class DashboardComponent implements OnInit {
   navigateToObjectives() { 
     this.router.navigate(['/objectives']); 
   }
-  
+
   navigateToTasks() { 
     this.router.navigate(['/tasks']); 
   }
-  
+
   createNewObjective() { 
+    console.log('🔔 createNewObjective clicked');
     this.router.navigate(['/objectives/new']); 
   }
 

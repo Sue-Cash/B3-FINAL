@@ -1,16 +1,22 @@
+# app/controllers/api/v1/tasks_controller.rb
 module Api
   module V1
     class TasksController < ApplicationController
       # Gestion centralisée des erreurs
-      rescue_from ActiveRecord::RecordNotFound,    with: :render_not_found
+      rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
       rescue_from ActionController::ParameterMissing, with: :render_bad_request
-      rescue_from JSON::ParserError,               with: :render_bad_request
+      rescue_from JSON::ParserError, with: :render_bad_request
 
       before_action :set_task, only: %i[show update destroy]
+      before_action :set_objective, only: %i[create]
 
       # GET /api/v1/tasks
       def index
-        tasks = Task.all
+        # Récupérer toutes les tâches de l'utilisateur (directes + via objectifs)
+        direct_tasks = @current_user.direct_tasks
+        objective_tasks = Task.joins(:objective).where(objectives: { user_id: @current_user.id })
+        
+        tasks = (direct_tasks + objective_tasks).uniq
         render json: tasks, status: :ok
       end
 
@@ -21,7 +27,15 @@ module Api
 
       # POST /api/v1/tasks
       def create
-        task = @current_user.direct_tasks.build(task_params)
+        # Si un objective_id est fourni, on crée la tâche pour cet objectif
+        if params[:objective_id].present?
+          task = @objective.tasks.build(task_params)
+          task.user = @current_user
+        else
+          # Sinon, on crée une tâche directe pour l'utilisateur
+          task = @current_user.direct_tasks.build(task_params)
+        end
+
         if task.save
           render json: task, status: :created
         else
@@ -47,14 +61,23 @@ module Api
       private
 
       def set_task
-        @task = @current_user.direct_tasks.find(params.require(:id))
+        # Vérifier que la tâche appartient à l'utilisateur (directement ou via un objectif)
+        @task = Task.joins("LEFT JOIN objectives ON tasks.objective_id = objectives.id")
+                    .where("tasks.user_id = ? OR objectives.user_id = ?", @current_user.id, @current_user.id)
+                    .find(params[:id])
+      end
+
+      def set_objective
+        if params[:objective_id].present?
+          @objective = @current_user.objectives.find(params[:objective_id])
+        end
       end
 
       def task_params
         params.require(:task).permit(
           :title, :description, :due_date, :completed_at,
           :reminder_date, :points, :priority, :status,
-          :frequency, :objective_id  # on garde objective_id pour rattacher la tâche, mais pas user_id
+          :frequency, :objective_id
         )
       end
 

@@ -1,0 +1,27 @@
+<div class="list-objectives">
+  <h2>Mes Objectifs</h2>
+
+  <div *ngIf="loading" class="spinner">Chargement…</div>
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+  <table *ngIf="!loading && objectives.length > 0" class="table">
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Échéance</th>
+        <th>Statut</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let obj of objectives">
+        <td>{{ obj.title }}</td>
+        <td>{{ obj.due_date | date }}</td>
+        <td>{{ obj.status }}</td>
+        <td>{{ obj.total_points }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && objectives.length === 0">Vous n’avez aucun objectif.</p>
+</div>

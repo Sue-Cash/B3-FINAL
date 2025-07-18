@@ -1,0 +1,170 @@
+<!-- src/app/components/objectives/create-objective/create-objective.component.html -->
+<div class="create-objective-container">
+  <div class="page-header">
+    <button class="btn-back" (click)="cancel()">
+      <i class="fas fa-arrow-left"></i>
+      Retour
+    </button>
+    <h1>CRÉER NOUVEL OBJECTIF</h1>
+  </div>
+
+  <form [formGroup]="objectiveForm" (ngSubmit)="onSubmit()" class="objective-form">
+    <div class="form-card">
+      <!-- Alert Error -->
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Titre de l'objectif -->
+      <div class="form-group">
+        <label for="title">TITRE OBJECTIF *</label>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          class="form-control"
+          placeholder="Ex: OBJECTIF 1"
+          [class.error]="objectiveForm.get('title')?.invalid && objectiveForm.get('title')?.touched"
+        />
+        <div class="error-message" *ngIf="objectiveForm.get('title')?.invalid && objectiveForm.get('title')?.touched">
+          <span *ngIf="objectiveForm.get('title')?.errors?.['required']">Le titre est requis</span>
+          <span *ngIf="objectiveForm.get('title')?.errors?.['maxlength']">Le titre ne peut pas dépasser 100 caractères</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">DESCRIPTION DÉTAILLÉE</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          rows="4"
+          placeholder="Lorem ipsum dolor sit amet..."
+        ></textarea>
+      </div>
+
+      <!-- Row: Catégorie et Date -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category">CATÉGORIE *</label>
+          <select
+            id="category"
+            formControlName="category_id"
+            class="form-control"
+            [class.error]="objectiveForm.get('category_id')?.invalid && objectiveForm.get('category_id')?.touched"
+          >
+            <option value="">SÉLECTIONNER CATÉGORIE</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">
+              {{ cat.icon }} {{ cat.name }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="objectiveForm.get('category_id')?.invalid && objectiveForm.get('category_id')?.touched">
+            La catégorie est requise
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="due_date">ÉCHÉANCE CIBLE</label>
+          <input
+            type="date"
+            id="due_date"
+            formControlName="due_date"
+            class="form-control"
+            [class.error]="objectiveForm.get('due_date')?.invalid && objectiveForm.get('due_date')?.touched"
+          />
+          <div class="error-message" *ngIf="objectiveForm.get('due_date')?.invalid && objectiveForm.get('due_date')?.touched">
+            La date d'échéance est requise
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Difficulté et Fréquence -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="difficulty">NIVEAU DIFFICULTÉ</label>
+          <select id="difficulty" formControlName="difficulty" class="form-control">
+            <option *ngFor="let diff of difficulties" [value]="diff">{{ diff }} ({{ getDifficultyPriority(diff) }}-10 PTS)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="frequency">FRÉQUENCE</label>
+          <select id="frequency" formControlName="frequency" class="form-control">
+            <option *ngFor="let freq of frequencies" [value]="freq">{{ freq }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section Tâches -->
+      <div class="tasks-section">
+        <div class="section-header">
+          <h2>TÂCHES ASSOCIÉES</h2>
+          <button type="button" class="btn btn-add-task" (click)="addTask()">
+            + AJOUTER TÂCHE
+          </button>
+        </div>
+
+        <div class="tasks-list" *ngIf="tasks.length > 0" formArrayName="tasks">
+          <div class="task-item" *ngFor="let _ of tasks.controls; let i = index" [formGroupName]="i">
+            <div class="task-number">{{ i + 1 }}</div>
+            <div class="task-content">
+              <div class="task-row">
+                <input
+                  type="text"
+                  formControlName="title"
+                  class="form-control task-title"
+                  placeholder="NOM DE LA TÂCHE"
+                  [class.error]="tasks.at(i).get('title')?.invalid && tasks.at(i).get('title')?.touched"
+                />
+                <select formControlName="priority" class="form-control priority-select">
+                  <option value="1">PRIORITÉ 1</option>
+                  <option value="2">PRIORITÉ 2</option>
+                  <option value="3">PRIORITÉ 3</option>
+                  <option value="4">PRIORITÉ 4</option>
+                  <option value="5">PRIORITÉ 5</option>
+                </select>
+                <input
+                  type="number"
+                  formControlName="points"
+                  class="form-control points-input"
+                  placeholder="10"
+                  min="1"
+                />
+                <input
+                  type="date"
+                  formControlName="due_date"
+                  class="form-control date-input"
+                />
+              </div>
+            </div>
+            <button type="button" class="btn-remove-task" (click)="removeTask(i)">
+              SUPPRIMER
+            </button>
+          </div>
+        </div>
+
+
+        <div class="empty-tasks" *ngIf="tasks.length === 0">
+          <p>Aucune tâche ajoutée. Cliquez sur "Ajouter tâche" pour commencer.</p>
+        </div>
+
+        <div class="total-points" *ngIf="tasks.length > 0">
+          <span>TOTAL POINTS: </span>
+          <strong>{{ calculateTotalPoints() }} PTS</strong>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          ANNULER
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="!loading">ENREGISTRER OBJECTIF</span>
+          <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

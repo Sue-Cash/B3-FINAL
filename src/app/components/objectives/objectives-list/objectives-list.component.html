@@ -1,0 +1,32 @@
+<!-- src/app/components/objectives/objectives-list/objectives-list.component.html -->
+<div class="list-objectives">
+  <h2>Mes Objectifs</h2>
+
+  <div *ngIf="loading" class="spinner">Chargement…</div>
+  <div *ngIf="!loading && objectives.length === 0">Vous n’avez aucun objectif.</div>
+
+  <table *ngIf="!loading && objectives.length > 0" class="table">
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Catégorie</th>
+        <th>Progression</th>
+        <th>Points</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let objective of filteredObjectives">
+        <td>{{ objective.title }}</td>
+        <td>{{ objective.category?.name || '-' }}</td>
+        <td>{{ objective.progressPercentage }}%</td>
+        <td>{{ objective.points }} POINTS</td>
+        <td>
+          <button (click)="viewObjective(objective.id)">Voir</button>
+          <button (click)="editObjective(objective.id)">Modifier</button>
+          <button (click)="deleteObjective(objective.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
