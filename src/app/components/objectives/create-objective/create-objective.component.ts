@@ -100,21 +100,22 @@ export class CreateObjectiveComponent implements OnInit {
 
     const formValue = this.objectiveForm.value;
     const objectiveData: Partial<Objective> = {
-      title:            formValue.title,
-      description:      formValue.description,
-      category_id:      formValue.category_id,
-      due_date:         formValue.due_date,
-      status:           'TODO',    // now a literal, not just `string`
-      priority:         this.getDifficultyPriority(formValue.difficulty),
-      frequency:        formValue.frequency,
-      total_points:     this.calculateTotalPoints()
+      title:        formValue.title,
+      description:  formValue.description,
+      category_id:  formValue.category_id,
+      due_date:     formValue.due_date,
+      status:       'TODO',
+      priority:     this.getDifficultyPriority(formValue.difficulty),
+      frequency:    formValue.frequency,
+      total_points: this.calculateTotalPoints()
     };
 
     this.objectiveService.createObjective(objectiveData).subscribe({
       next: (objective) => {
         // Create tasks for this objective
         if (formValue.tasks.length > 0) {
-          this.createTasks(objective.id, formValue.tasks);
+          // Non-null assertion on id
+          this.createTasks(objective.id!, formValue.tasks);
         } else {
           this.router.navigate(['/objectives']);
         }
@@ -151,9 +152,9 @@ export class CreateObjectiveComponent implements OnInit {
   getDifficultyPriority(difficulty: string): number {
     switch (difficulty) {
       case 'FAIBLE': return 1;
-      case 'MOYEN': return 3;
-      case 'ÉLEVÉ': return 5;
-      default: return 3;
+      case 'MOYEN':  return 3;
+      case 'ÉLEVÉ':  return 5;
+      default:       return 3;
     }
   }
 
