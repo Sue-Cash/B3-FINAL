@@ -1,11 +1,12 @@
-// dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
-import { TaskService } from '../../services/task.service';
-import { ObjectiveService } from '../../services/objective.service';
-import { UserService } from '../../services/user.service';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { TaskService, Task } from '../../services/task.service';
+import { ObjectiveService, Objective } from '../../services/objective.service';
+import { UserService, UserProfile, UserStats } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
 
+// Define missing interfaces
 interface DashboardStats {
   tasksCompleted: number;
   totalTasks: number;
@@ -17,28 +18,22 @@ interface DashboardStats {
   monthlyProgress: number;
 }
 
-interface Objective {
-  id: string;
-  title: string;
-  tasks: Task[];
+interface ObjectiveWithProgress extends Objective {
   progress: number;
-  status: 'IN_PROGRESS' | 'DONE_ON_TIME' | 'DONE_EARLY' | 'DONE_LATE';
-  points: number;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
 }
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  user: any;
+  user!: UserProfile;
   stats: DashboardStats = {
     tasksCompleted: 0,
     totalTasks: 0,
@@ -49,8 +44,8 @@ export class DashboardComponent implements OnInit {
     weeklyProgress: 0,
     monthlyProgress: 0
   };
-  
-  activeObjectives: Objective[] = [];
+
+  activeObjectives: ObjectiveWithProgress[] = [];
   loading = true;
   currentDate = new Date();
 
@@ -66,76 +61,84 @@ export class DashboardComponent implements OnInit {
     try {
       await this.loadUserData();
       await this.loadDashboardData();
-    } catch (error) {
-      console.error('Erreur lors du chargement du dashboard:', error);
+    } catch (err) {
+      console.error('Erreur dashboard:', err);
+      // Optionally redirect to login if error
+      if (err instanceof Error && err.message.includes('401')) {
+        this.router.navigate(['/login']);
+      }
     } finally {
       this.loading = false;
     }
   }
 
-  async loadUserData() {
-    this.user = await this.userService.getCurrentUser();
+  private async loadUserData() {
+    const user = await this.userService.getCurrentUser().toPromise();
+    if (user) {
+      this.user = user;
+    } else {
+      throw new Error('User not found');
+    }
   }
 
-  async loadDashboardData() {
-    // Charger les statistiques
+  private async loadDashboardData() {
     const [tasks, objectives, userStats] = await Promise.all([
-      this.taskService.getUserTasks(),
-      this.objectiveService.getUserObjectives(),
-      this.userService.getUserStats()
+      this.taskService.getUserTasks().toPromise(),
+      this.objectiveService.getUserObjectives().toPromise(),
+      this.userService.getUserStats().toPromise()
     ]);
 
-    // Calculer les statistiques
-    this.stats.totalTasks = tasks.length;
-    this.stats.tasksCompleted = tasks.filter(t => t.completed).length;
-    this.stats.totalObjectives = objectives.length;
-    this.stats.objectivesActive = objectives.filter(o => o.status === 'IN_PROGRESS').length;
-    
-    this.stats.currentLevel = userStats.level;
-    this.stats.currentPoints = userStats.points;
-    this.stats.weeklyProgress = userStats.weeklyProgress;
-    this.stats.monthlyProgress = userStats.monthlyProgress;
+    // Handle potentially undefined values
+    if (tasks) {
+      this.stats.totalTasks = tasks.length;
+      this.stats.tasksCompleted = tasks.filter(t => t.completed).length;
+    }
 
-    // Charger les objectifs actifs
-    this.activeObjectives = objectives
-      .filter(o => o.status === 'IN_PROGRESS')
-      .slice(0, 3)
-      .map(o => ({
-        ...o,
-        progress: this.calculateProgress(o.tasks)
-      }));
+    if (objectives) {
+      this.stats.totalObjectives = objectives.length;
+      this.stats.objectivesActive = objectives.filter(o => o.status === 'IN_PROGRESS').length;
+      
+      this.activeObjectives = objectives
+        .filter(o => o.status === 'IN_PROGRESS')
+        .slice(0, 3)
+        .map(o => ({
+          ...o,
+          progress: this.calculateProgress(o.tasks || [])
+        }));
+    }
+
+    if (userStats) {
+      this.stats.currentLevel = userStats.level;
+      this.stats.currentPoints = userStats.points;
+      this.stats.weeklyProgress = userStats.weeklyProgress;
+      this.stats.monthlyProgress = userStats.monthlyProgress;
+    }
   }
 
-  calculateProgress(tasks: Task[]): number {
-    if (tasks.length === 0) return 0;
+  private calculateProgress(tasks: Task[]): number {
+    if (!tasks || tasks.length === 0) return 0;
     return Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100);
   }
 
   getProgressPercentage(type: 'weekly' | 'monthly' | 'objectives'): string {
-    switch (type) {
-      case 'weekly':
-        return `${this.stats.weeklyProgress}%`;
-      case 'monthly':
-        return `${this.stats.monthlyProgress}%`;
-      case 'objectives':
-        return this.stats.totalObjectives > 0 
-          ? `${Math.round((this.stats.objectivesActive / this.stats.totalObjectives) * 100)}%`
-          : '0%';
-      default:
-        return '0%';
-    }
+    if (type === 'weekly') return `${this.stats.weeklyProgress}%`;
+    if (type === 'monthly') return `${this.stats.monthlyProgress}%`;
+    // objectives
+    return this.stats.totalObjectives > 0
+      ? `${Math.round((this.stats.objectivesActive / this.stats.totalObjectives) * 100)}%`
+      : '0%';
   }
 
-  navigateToObjectives() {
-    this.router.navigate(['/objectives']);
+  navigateToObjectives() { 
+    this.router.navigate(['/objectives']); 
   }
-
-  navigateToTasks() {
-    this.router.navigate(['/tasks']);
+  
+  navigateToTasks() { 
+    this.router.navigate(['/tasks']); 
   }
-
-  createNewObjective() {
-    this.router.navigate(['/objectives/new']);
+  
+  createNewObjective() { 
+    this.router.navigate(['/objectives/new']); 
   }
 
   logout() {

@@ -1,11 +1,18 @@
-// login.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { CommonModule }            from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule, Router }    from '@angular/router';
+import { AuthService }             from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    RouterModule
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -27,15 +34,13 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
-
     this.twoFactorForm = this.fb.group({
       code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
     });
   }
 
   ngOnInit() {
-    // Vérifier si l'utilisateur est déjà connecté
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
     }
   }
@@ -45,54 +50,45 @@ export class LoginComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (this.loginForm.valid) {
-      this.loading = true;
-      this.errorMessage = '';
-      
-      try {
-        const response = await this.authService.login(
-          this.loginForm.value.email,
-          this.loginForm.value.password,
-          this.rememberMe
-        );
-        
-        if (response.requires2FA) {
-          this.show2FA = true;
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
-      } catch (error: any) {
-        this.errorMessage = error.message || 'Email ou mot de passe incorrect';
-      } finally {
-        this.loading = false;
+    if (this.loginForm.invalid) return;
+    this.loading = true;
+    this.errorMessage = '';
+    try {
+      const resp = await this.authService.login(this.loginForm.value).toPromise();
+      if ((resp as any).requires2FA) {
+        this.show2FA = true;
+      } else {
+        this.router.navigate(['/dashboard']);
       }
+    } catch (err: any) {
+      this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect';
+    } finally {
+      this.loading = false;
     }
   }
 
   async submit2FA() {
-    if (this.twoFactorForm.valid) {
-      this.loading = true;
-      this.errorMessage = '';
-      
-      try {
-        await this.authService.verify2FA(this.twoFactorForm.value.code);
-        this.router.navigate(['/dashboard']);
-      } catch (error: any) {
-        this.errorMessage = error.message || 'Code invalide';
-        this.twoFactorForm.reset();
-      } finally {
-        this.loading = false;
-      }
+    if (this.twoFactorForm.invalid) return;
+    this.loading = true;
+    this.errorMessage = '';
+    try {
+      await this.authService.verify2FA(this.twoFactorForm.value.code).toPromise();
+      this.router.navigate(['/dashboard']);
+    } catch (err: any) {
+      this.errorMessage = err.error?.message || 'Code invalide';
+      this.twoFactorForm.reset();
+    } finally {
+      this.loading = false;
     }
   }
 
   async signInWithGoogle() {
     this.loading = true;
     try {
-      await this.authService.signInWithGoogle();
+      await this.authService.signInWithGoogle().toPromise();
       this.router.navigate(['/dashboard']);
-    } catch (error: any) {
-      this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
+    } catch (err: any) {
+      this.errorMessage = err.error?.message || 'Erreur lors de la connexion avec Google';
     } finally {
       this.loading = false;
     }

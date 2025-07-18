@@ -15,7 +15,3 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Import des styles des composants
-@import './app/components/auth/register/register.component.scss';
-@import './app/components/auth/login/login.component.scss';
-@import './app/components/dashboard/dashboard.component.scss';

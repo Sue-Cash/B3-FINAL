@@ -3,13 +3,12 @@ version: '3.8'
 services:
   db:
     image: postgres:15
-    restart: always
     environment:
-      POSTGRES_USER: taskcoeur
-      POSTGRES_PASSWORD: secretpassword
       POSTGRES_DB: taskcoeur_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -17,29 +16,42 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    command: bundle exec rails server -b 0.0.0.0
     volumes:
       - .:/usr/src/app
-    environment:
-      DATABASE_URL: postgres://taskcoeur:secretpassword@db:5432/taskcoeur_development
-      RAILS_ENV: development
+      - bundle_data:/usr/local/bundle
     ports:
       - "3000:3000"
     depends_on:
       - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/taskcoeur_development
+      RAILS_ENV: development
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-8d4041cf4d4868abacc77bbf18cfcee8}
+    command: >
+      bash -c "
+        rm -f tmp/pids/server.pid &&
+        bundle exec rails db:create db:migrate db:seed &&
+        bundle exec rails server -b 0.0.0.0
+      "
 
   web:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    command: npm run start -- --host 0.0.0.0
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./src:/usr/src/app/src
+      - ./angular.json:/usr/src/app/angular.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./tsconfig.app.json:/usr/src/app/tsconfig.app.json
     ports:
       - "4200:4200"
     depends_on:
       - api
+    environment:
+      API_URL: http://api:3000
+    # override npm start so ng serve listens on 0.0.0.0
+    command: npm start -- --host 0.0.0.0
 
 volumes:
-  db-data:
+  postgres_data:
+  bundle_data:
