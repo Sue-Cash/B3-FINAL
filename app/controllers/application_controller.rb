@@ -1,6 +1,9 @@
 class ApplicationController < ActionController::API
   before_action :authenticate_request
 
+  # Permet d'accéder à `current_user` dans tous les contrôleurs  
+  attr_reader :current_user
+
   private
 
   def authenticate_request

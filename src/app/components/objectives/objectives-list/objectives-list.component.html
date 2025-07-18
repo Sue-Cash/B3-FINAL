@@ -1,0 +1,112 @@
+<!-- src/app/components/objectives/objectives-list/objectives-list.component.html -->
+<div class="objectives-container">
+  <div class="page-header">
+    <h1>MES OBJECTIFS</h1>
+    <div class="header-actions">
+      <div class="stats-summary">
+        <span class="stat-item">
+          <strong>{{ objectives.length }}</strong> OBJECTIFS
+        </span>
+        <span class="stat-item">
+          <strong>{{ (objectives | filter: {status: 'IN_PROGRESS'}).length }}</strong> EN COURS
+        </span>
+        <span class="stat-item">
+          <strong>{{ (objectives | filter: {status: 'DONE'}).length }}</strong> TERMINÉS
+        </span>
+      </div>
+      <button class="btn btn-primary" (click)="createNewObjective()">
+        + NOUVEL OBJECTIF
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-bar">
+    <button 
+      class="filter-btn" 
+      [class.active]="filter === 'all'"
+      (click)="filter = 'all'">
+      TOUS
+    </button>
+    <button 
+      class="filter-btn" 
+      [class.active]="filter === 'active'"
+      (click)="filter = 'active'">
+      EN COURS
+    </button>
+    <button 
+      class="filter-btn" 
+      [class.active]="filter === 'completed'"
+      (click)="filter = 'completed'">
+      TERMINÉS
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Objectives Grid -->
+  <div class="objectives-grid" *ngIf="!loading">
+    <div class="objective-card" *ngFor="let objective of filteredObjectives">
+      <div class="card-header">
+        <div class="objective-info">
+          <h3>{{ objective.title }}</h3>
+          <div class="category-tag" *ngIf="objective.category" [style.background-color]="objective.category.color + '20'">
+            <span [style.color]="objective.category.color">{{ objective.category.icon }} {{ objective.category.name }}</span>
+          </div>
+        </div>
+        <div class="objective-stats">
+          <span class="points-badge">{{ objective.points || 0 }} POINTS</span>
+          <span class="status-badge" [ngClass]="getStatusClass(objective.status)">
+            {{ getStatusLabel(objective.status) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p class="description" *ngIf="objective.description">{{ objective.description }}</p>
+        
+        <div class="progress-section">
+          <div class="progress-header">
+            <span>PROGRESSION: {{ objective.progressPercentage }}%</span>
+            <span>{{ objective.completedTasks }}/{{ objective.totalTasks }} TÂCHES</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="objective.progressPercentage"></div>
+          </div>
+        </div>
+
+        <div class="due-date" *ngIf="objective.due_date">
+          <i class="fas fa-calendar"></i>
+          <span>Échéance: {{ objective.due_date | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-action" (click)="viewObjective(objective.id)" title="Voir détails">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="btn-action" (click)="editObjective(objective.id)" title="Modifier">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-action btn-delete" (click)="deleteObjective(objective.id)" title="Supprimer">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredObjectives.length === 0">
+      <i class="fas fa-bullseye"></i>
+      <h3>Aucun objectif trouvé</h3>
+      <p>Commencez par créer votre premier objectif pour suivre votre progression</p>
+      <button class="btn btn-primary" (click)="createNewObjective()">
+        CRÉER UN OBJECTIF
+      </button>
+    </div>
+  </div>
+</div>

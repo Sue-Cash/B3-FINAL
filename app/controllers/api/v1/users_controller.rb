@@ -1,4 +1,3 @@
-# app/controllers/api/v1/users_controller.rb
 module Api
   module V1
     class UsersController < ApplicationController
@@ -18,6 +17,12 @@ module Api
       # GET /api/v1/users/:id
       def show
         render json: @user, status: :ok
+      end
+
+      # GET /api/v1/users/me
+      # Renvoie l’utilisateur authentifié via le token
+      def me
+        render json: current_user, status: :ok
       end
 
       # POST /api/v1/signup
@@ -60,7 +65,7 @@ module Api
           :username,
           :password,
           :password_confirmation,
-          :total_points, 
+          :total_points,
         )
       end
 

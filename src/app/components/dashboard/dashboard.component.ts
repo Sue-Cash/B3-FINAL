@@ -138,8 +138,10 @@ export class DashboardComponent implements OnInit {
   }
   
   createNewObjective() { 
+    console.log('🔔 createNewObjective clicked');
     this.router.navigate(['/objectives/new']); 
   }
+
 
   logout() {
     this.authService.logout();

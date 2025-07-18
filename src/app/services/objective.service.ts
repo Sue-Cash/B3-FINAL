@@ -2,53 +2,45 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Task } from './task.service';
+import { Objective }  from '../models/objective.model';          // unified interface
 import { environment } from '../../environments/environment';
-
-export interface Objective {
-  id: string;
-  title: string;
-  description?: string;
-  tasks: Task[];
-  status: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'DONE_ON_TIME' | 'DONE_EARLY' | 'DONE_LATE';
-  points: number;
-  priority?: number;
-  due_date?: string;
-  category_id?: string;
-  total_points?: number;
-  progress_percentage?: number;
-  frequency?: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ObjectiveService {
+  private baseUrl = `${environment.apiUrl}/api/v1/objectives`;
+
   constructor(private http: HttpClient) {}
 
-  getUserObjectives(): Observable<Objective[]> {
-    return this.http.get<Objective[]>(`${environment.apiUrl}/api/v1/objectives`);
+  /** Fetch all objectives */
+  getObjectives(): Observable<Objective[]> {
+    return this.http.get<Objective[]>(this.baseUrl);
   }
 
+  /** Fetch a single objective by ID */
   getObjective(id: string): Observable<Objective> {
-    return this.http.get<Objective>(`${environment.apiUrl}/api/v1/objectives/${id}`);
+    return this.http.get<Objective>(`${this.baseUrl}/${id}`);
   }
 
-  createObjective(objective: Partial<Objective>): Observable<Objective> {
-    return this.http.post<Objective>(`${environment.apiUrl}/api/v1/objectives`, objective);
+  /** Create a new objective */
+  createObjective(data: Partial<Objective>): Observable<Objective> {
+    return this.http.post<Objective>(this.baseUrl, { objective: data });
   }
 
-  updateObjective(id: string, objective: Partial<Objective>): Observable<Objective> {
-    return this.http.put<Objective>(`${environment.apiUrl}/api/v1/objectives/${id}`, objective);
+  /** Update an existing objective */
+  updateObjective(id: string, data: Partial<Objective>): Observable<Objective> {
+    return this.http.put<Objective>(`${this.baseUrl}/${id}`, { objective: data });
   }
 
+  /** Delete an objective */
   deleteObjective(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/api/v1/objectives/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  // Method to create a task for an objective
+  /** Create a task under a given objective */
   createTask(objectiveId: string, task: any): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/api/v1/tasks`, {
-      ...task,
-      objective_id: objectiveId
-    });
+    return this.http.post(
+      `${environment.apiUrl}/api/v1/tasks`,
+      { ...task, objective_id: objectiveId }
+    );
   }
 }

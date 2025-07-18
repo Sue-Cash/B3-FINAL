@@ -5,6 +5,8 @@ Rails.application.routes.draw do
       post 'auth/register', to: 'authentication#register'
       post 'auth/login', to: 'authentication#login'
       post 'auth/logout', to: 'authentication#logout'
+
+      get 'users/me', to: 'users#me'
       
       # Resources existantes
       resources :users,       only:       %i[index show update destroy]
