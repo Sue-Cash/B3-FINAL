@@ -1,3 +1,4 @@
+// src/app/services/objective.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -14,6 +15,9 @@ export interface Objective {
   priority?: number;
   due_date?: string;
   category_id?: string;
+  total_points?: number;
+  progress_percentage?: number;
+  frequency?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -38,5 +42,13 @@ export class ObjectiveService {
 
   deleteObjective(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/api/v1/objectives/${id}`);
+  }
+
+  // Method to create a task for an objective
+  createTask(objectiveId: string, task: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/api/v1/tasks`, {
+      ...task,
+      objective_id: objectiveId
+    });
   }
 }
