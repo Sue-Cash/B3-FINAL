@@ -1,0 +1,5 @@
+<!-- Replace this line in login.component.html -->
+<img src="assets/google-icon.svg" alt="Google" />
+
+<!-- With this Font Awesome icon -->
+<i class="fab fa-google"></i>
