@@ -1,73 +1,67 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
+# db/seeds.rb
 
-# Nettoyer les données existantes
-User.destroy_all
-Category.destroy_all
-Objective.destroy_all
+# 1) Clean slate
 Task.destroy_all
+Objective.destroy_all
+Category.destroy_all
+User.destroy_all
 
-# Créer un utilisateur de test
+# 2) Test user
 user = User.create!(
-  email: 'test@taskcoeur.com',
-  password: 'password123',
-  username: 'testuser',
-  total_points: 0,
-  level: 1
+  email:                 'test@gmail.com',
+  username:              'test',
+  password:              'test01',
+  password_confirmation: 'test01',
+  total_points:          0,
+  level:                 1
 )
 
-# Créer des catégories
-work_category = user.categories.create!(
-  name: 'Travail',
-  icon: '💼',
-  color: '#3B82F6'
+# 3) Four fixed categories
+category_names = {
+  'SANTE'           => '❤️',
+  'PROFESSIONNELLE' => '💼',
+  'PERSONNELLE'     => '🏠',
+  'DIVERS'          => '🔧'
+}
+
+categories = category_names.map do |name, icon|
+  Category.create!(
+    name:  name,
+    icon:  icon,
+    color: '#CCCCCC'  # adjust default color if you wish
+  )
+end
+
+# 4) One sample objective in the “SANTE” category
+sante_category = categories.find { |c| c.name == 'SANTE' }
+
+objective = Objective.create!(
+  title:           'Faire 30 minutes de sport',
+  description:     'Routine quotidienne pour la santé',
+  user:            user,
+  category:        sante_category,
+  status:          'IN_PROGRESS',
+  priority:        3,
+  total_points:    50,
+  due_date:        1.week.from_now.to_date,
+  frequency:       'UNIQUE'  
 )
 
-personal_category = user.categories.create!(
-  name: 'Personnel',
-  icon: '🏠',
-  color: '#10B981'
+# 5) One sample task under that objective
+Task.create!(
+  title:        'Courir 5 km',
+  description:  'Aller courir autour du parc',
+  user:         user,
+  objective:    objective,
+  status:       'TODO',
+  priority:     2,
+  points:       10,
+  due_date:     Date.today,
+  frequency:    'DAILY'
 )
 
-# Créer un objectif
-objective = user.objectives.create!(
-  title: 'Finir le projet TaskCoeur',
-  description: 'Développer l\'application complète',
-  status: 'IN_PROGRESS',
-  priority: 5,
-  total_points: 100,
-  due_date: 1.month.from_now,
-  frequency: 'UNIQUE',
-  category: work_category
-)
-
-# Créer des tâches
-task1 = objective.tasks.create!(
-  title: 'Implémenter les modèles',
-  description: 'Créer tous les modèles Rails',
-  status: 'DONE',
-  priority: 4,
-  points: 20,
-  due_date: 1.week.ago,
-  frequency: 'UNIQUE',
-  user: user
-)
-
-task2 = objective.tasks.create!(
-  title: 'Créer les contrôleurs API',
-  description: 'Développer les contrôleurs REST',
-  status: 'IN_PROGRESS',
-  priority: 4,
-  points: 30,
-  due_date: 2.weeks.from_now,
-  frequency: 'UNIQUE',
-  user: user
-)
-
-puts "✅ Utilisateur créé : #{user.email}"
-puts "✅ Catégories créées : #{user.categories.count}"
-puts "✅ Objectifs créés : #{user.objectives.count}"
-puts "✅ Tâches créées : #{Task.count}"
-puts "✅ Points utilisateur : #{user.reload.total_points}"
+puts "Seed complete!"
+puts "  Users:      #{User.count}"
+puts "  Categories: #{Category.count}"
+puts "  Objectives: #{Objective.count}"
+puts "  Tasks:      #{Task.count}"
