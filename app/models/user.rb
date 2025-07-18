@@ -8,7 +8,7 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_one :mail_config, dependent: :destroy
   has_many :user_sessions, dependent: :destroy
-  has_many :categories, dependent: :destroy
+
 
   # Validations
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -16,7 +16,7 @@ class User < ApplicationRecord
 
   
   # Callbacks
-  after_create :create_default_mail_config, :create_default_categories
+  after_create :create_default_mail_config
   
   # Méthodes
   def calculate_level
@@ -27,19 +27,7 @@ class User < ApplicationRecord
   private
   
   def create_default_mail_config
-    MailConfig.create(user: self, frequency: 'weekly', enabled: true, send_time: '09:00')
+    MailConfig.create!(user: self, frequency: 'weekly', enabled: true, send_time: '09:00')
   end
   
-  def create_default_categories
-    default_categories = [
-      { name: 'Travail', icon: '💼', color: '#3B82F6' },
-      { name: 'Personnel', icon: '🏠', color: '#10B981' },
-      { name: 'Sport', icon: '🏃', color: '#F59E0B' },
-      { name: 'Études', icon: '📚', color: '#8B5CF6' }
-    ]
-    
-    default_categories.each do |cat|
-      categories.create(cat)
-    end
-  end
 end
